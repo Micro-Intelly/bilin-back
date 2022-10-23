@@ -34,4 +34,15 @@ class LoginController extends Controller
         $request->session()->regenerate();
         return response()->json($request->user());
     }
+
+    public function logout(Request $request): JsonResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'message' => 'User logged out successfully'
+        ]);
+    }
 }

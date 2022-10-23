@@ -16,9 +16,10 @@ use App\Http\Controllers\Auth\LoginController;
 |
 */
 Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::middleware(['role:Admin|Student', 'permission:view-user'])->get('/user/viewTest', function (Request $request) {
+    Route::middleware(['role:Admin|Student', 'permission:view-user'])->get('/user', function (Request $request) {
         return $request->user();
     });
     Route::middleware(['role:Admin|Student', 'permission:delete-user'])->get('/user/deleteTest', function (Request $request) {
