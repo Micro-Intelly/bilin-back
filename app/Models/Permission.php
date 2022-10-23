@@ -4,13 +4,9 @@ namespace App\Models;
 
 use App\Http\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
-class Post extends Model
+class Permission extends SpatiePermission
 {
     use HasFactory, UuidTrait;
-
-    public $incrementing = false;
-
-
 }

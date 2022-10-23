@@ -17,8 +17,24 @@ use App\Http\Controllers\Auth\LoginController;
 */
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::middleware(['role:Admin|Student', 'permission:view-user'])->get('/user/viewTest', function (Request $request) {
+        return $request->user();
+    });
+    Route::middleware(['role:Admin|Student', 'permission:delete-user'])->get('/user/deleteTest', function (Request $request) {
+        return $request->user();
+    });
+    Route::middleware(['role:Admin'])->get('/user/adminTest', function (Request $request) {
+        return $request->user();
+    });
 });
 
 Route::get('/postTest/{id}',[PostController::class, 'testGet']);
+Route::get('/userCan', function (Request $request) {
+    return response()->json([
+        "view" => $request->user()->can('view-user'),
+        "delete" => $request->user()->can('delete-user'),
+        "publish" => $request->user()->can('publish-post'),
+        "create" => $request->user()->can('create-user'),
+    ]);
+});
