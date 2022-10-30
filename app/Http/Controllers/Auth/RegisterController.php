@@ -19,7 +19,7 @@ class RegisterController extends Controller
             'email' => 'required|email|max:50',
             'password' => 'required|max:30',
             'role' => 'required|max:125|exists:roles,name',
-            'key' => 'max:50'
+            'verificationKey' => 'max:50'
         ];
         // validate key
 //        $validator = Validator::make($request->all(),$rule);
