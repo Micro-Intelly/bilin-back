@@ -12,6 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
+    /**
+     * User sign up method
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function signup(Request $request): JsonResponse
     {
         $rule = [
