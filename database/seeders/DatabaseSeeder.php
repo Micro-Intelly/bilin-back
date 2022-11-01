@@ -36,11 +36,11 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'delete-post']);
 
         // create roles and assign existing permissions
-        $role1 = Role::create(['name' => 'Student']);
-        $role2 = Role::create(['name' => 'Teacher']);
-        $role3 = Role::create(['name' => 'Organization']);
-        $role4 = Role::create(['name' => 'Manager']);
-        $role5 = Role::create(['name' => 'Admin']);
+        $role1 = Role::create(['name' => 'Student', 'need_key' => false]);
+        $role2 = Role::create(['name' => 'Teacher', 'need_key' => false]);
+        $role3 = Role::create(['name' => 'Organization', 'need_key' => true]);
+        $role4 = Role::create(['name' => 'Manager', 'need_key' => true]);
+        $role5 = Role::create(['name' => 'Admin', 'need_key' => true]);
 
         $role1->givePermissionTo('view-user');
 

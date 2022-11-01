@@ -11,6 +11,9 @@ use \Illuminate\Http\JsonResponse;
 class LoginController extends Controller
 {
     /**
+     * Method to login user
+     * @param Request $request
+     * @return JsonResponse
      * @throws ValidationException
      */
     public function login(Request $request): JsonResponse
@@ -35,6 +38,11 @@ class LoginController extends Controller
         return response()->json($request->user());
     }
 
+    /**
+     * Method to logout user
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function logout(Request $request): JsonResponse
     {
         Auth::logout();
