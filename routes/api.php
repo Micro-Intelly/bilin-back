@@ -22,6 +22,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/signup', [RegisterController::class, 'signup'])->name('signup');
 
 Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+Route::get('/video', [PostController::class, 'testShowV'])->name('video.show');
+Route::get('/podcast', [PostController::class, 'testShowP'])->name('podcast.show');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::middleware(['role:Admin|Student', 'permission:view-user'])->get('/user', function (Request $request) {
