@@ -13,15 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->text('body');
-            $table->uuid('user_id');
-            $table->uuid('language_id');
+            $table->text('question');
+            $table->json('answers'); // { index: 'answer_text', ...}
+            $table->integer('correct_answer'); // index
+            $table->uuid('test_id');
 
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('language_id')->references('id')->on('languages');
+            $table->foreign('test_id')->references('id')->on('tests')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('questions');
     }
 };

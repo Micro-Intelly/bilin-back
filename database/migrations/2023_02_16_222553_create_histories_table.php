@@ -13,15 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('histories', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->text('body');
+            $table->uuidMorphs('history_able');
             $table->uuid('user_id');
-            $table->uuid('language_id');
-
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('language_id')->references('id')->on('languages');
             $table->timestamps();
         });
     }
@@ -33,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('histories');
     }
 };

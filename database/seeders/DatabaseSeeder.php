@@ -3,12 +3,29 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Comment;
+use App\Models\Episode;
+use App\Models\Favorite;
+use App\Models\File;
+use App\Models\History;
+use App\Models\Language;
+use App\Models\Organization;
+use App\Models\Question;
+use App\Models\Result;
+use App\Models\Section;
+use App\Models\Serie;
+use App\Models\Tag;
+use App\Models\Test;
+use Database\Factories\FavoriteFactory;
+use Database\Factories\SerieFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
 use App\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
 use App\Models\Post;
+use function Sodium\add;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,27 +43,160 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         // Reset cached roles and permissions
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // create permissions
-        Permission::create(['name' => 'view-user']);
-        Permission::create(['name' => 'delete-user']);
-        Permission::create(['name' => 'create-user']);
-        Permission::create(['name' => 'publish-post']);
-        Permission::create(['name' => 'delete-post']);
+        $this->call([
+            PermissionSeeder::class,
+            LanguageSeeder::class,
+            TagSeeder::class,
+            OrganizationSeeder::class,
+        ]);
+        $tags = Tag::all();
+        $organizations = Organization::all();
+        $languages = Language::all();
+        $orgWithNull = clone $organizations;
+        $orgWithNull->add(null);
 
         // create roles and assign existing permissions
-        $role1 = Role::create(['name' => 'Student', 'need_key' => false]);
-        $role2 = Role::create(['name' => 'Teacher', 'need_key' => false]);
-        $role3 = Role::create(['name' => 'Organization', 'need_key' => true]);
-        $role4 = Role::create(['name' => 'Manager', 'need_key' => true]);
-        $role5 = Role::create(['name' => 'Admin', 'need_key' => true]);
+        $student = Role::create(['name' => 'Student', 'need_key' => false]);
+        $teacher = Role::create(['name' => 'Teacher', 'need_key' => false]);
+        $organization = Role::create(['name' => 'Organization', 'need_key' => true]);
+        $manager = Role::create(['name' => 'Manager', 'need_key' => true]);
+        $admin = Role::create(['name' => 'Admin', 'need_key' => true]);
 
-        $role1->givePermissionTo('view-user');
+        $student->syncPermissions(['manage-self-user','manage-self-post', 'manage-self-comment']);
+        $teacher->syncPermissions(['manage-self-user','manage-self-post', 'manage-self-comment',
+            'manage-self-series', 'manage-self-test']);
+        $organization->syncPermissions(['manage-self-user','manage-org-user','manage-self-post', 'manage-self-comment',
+            'manage-self-series', 'manage-self-test']);
+        $manager->syncPermissions(['manage-self-user','manage-self-post', 'manage-self-comment',
+            'manage-self-series', 'manage-self-test','manage-user','manage-post','manage-comment','manage-test','manage-series']);
+        $admin->syncPermissions(['manage-self-user','manage-self-post', 'manage-self-comment',
+            'manage-self-series', 'manage-self-test','manage-user','manage-post','manage-comment','manage-test',
+            'manage-series','delete-user']);
 
-        Post::factory()->create();
-        $user1 = User::factory()->withKnowEmail('test@example.es')->create();
-        $user1->givePermissionTo('publish-post');
-        $user1->assignRole($role1);
+        // Users
+        $studentUser = User::factory()->withKnowEmail('student@example.es')->create();
+        $studentUser->assignRole($student);
+        $studentUserList = collect();
+        for($i = 0; $i < 10; $i++){
+            $studentUserAux = User::factory()->withKnowEmail('student'.$i.'@example.es')->create();
+            $studentUserAux->assignRole($student);
+            $studentUserList->add($studentUserAux);
+        }
+        $studentUserList->each(function ($user) use ($organizations) {
+            $user->organizations()->attach(
+                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
+            );
+        });
+        $teacherUser = User::factory()->withKnowEmail('teacher@example.es')->create();
+        $teacherUser->assignRole($teacher);
+        $teacherUserList = collect();
+        for($i = 0; $i < 10; $i++){
+            $teacherUserAux = User::factory()->withKnowEmail('teacher'.$i.'@example.es')->create();
+            $teacherUserAux->assignRole($teacher);
+            $teacherUserList->add($teacherUserAux);
+        }
+        $teacherUserList->each(function ($user) use ($organizations) {
+            $user->organizations()->attach(
+                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
+            );
+        });
+        $teacherUserList->each(function ($user) use ($organizations) {
+            $user->organizations()->attach(
+                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
+            );
+        });
+        /** @var User $orgUser */
+        $orgUser = User::factory()->withKnowEmail('org@example.es')->create();
+        $orgUser->assignRole($organization);
+        $orgUser->organizations()->save($organizations->random());
+        $orgUserList = collect();
+        for($i = 0; $i < 10; $i++){
+            $orgUserAux = User::factory()->withKnowEmail('org'.$i.'@example.es')->create();
+            $orgUserAux->assignRole($organization);
+            $orgUserList->add($orgUserAux);
+        }
+        $orgUserList->each(function ($user) use ($organizations) {
+            $user->organizations()->attach(
+                $organizations->random()->pluck('id')->toArray()
+            );
+        });
+        $orgUserList->each(function ($user) use ($organizations) {
+            $user->organizations()->attach(
+                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
+            );
+        });
+        $managerUser = User::factory()->withKnowEmail('manager@example.es')->create();
+        $managerUser->assignRole($manager);
+        $adminUser = User::factory()->withKnowEmail('admin@example.es')->create();
+        $adminUser->assignRole($admin);
+
+        // Series, Section, Episode, Comment, File
+        $seriesList = collect();
+        for($i = 0; $i < 10; $i++){
+            $seriesAuxFactory = Serie::factory()
+                ->withUser($studentUser)
+                ->withLanguage($languages->random());
+            $orgAux = $orgWithNull->random();
+            if($orgAux != null){
+                $seriesAuxFactory = $seriesAuxFactory->withOrg($orgAux);
+            }
+            /** @var Serie $seriesAux */
+            $seriesAux = $seriesAuxFactory->create();
+            $seriesAux->tags()->saveMany($tags->random(3));
+
+            $sectionsList = Section::factory()->count(3)->withSeries($seriesAux)->create();
+            $episodesList = Episode::factory()->count(12)->withSections($sectionsList->random())->create();
+            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($comments->random())->create();
+            File::factory()->count(3)->withSeries($seriesAux)->create();
+
+            $seriesList->add($seriesAux);
+        }
+        // Post, Comment
+        /** @var Post $post */
+        $post = Post::factory()->withUser($studentUser)->withLanguage($languages->random())->create();
+        $post->tags()->saveMany($tags->random(3));
+        $postsList = collect();
+        for($i = 0; $i < 10; $i++){
+            /** @var Post $postAux */
+            $postAux = Post::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->create();
+            $postAux->tags()->saveMany($tags->random(3));
+
+            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($postAux)->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($comments->random())->create();
+
+            $postsList->add($postAux);
+        }
+
+        // Test, question, result, comment
+        /** @var Test $test */
+        $test = Test::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->create();
+        $test->tags()->saveMany($tags->random(3));
+        Question::factory()->count(5)->withTest($test)->create();
+        Result::factory()->count(50)->withUser($teacherUserList->random())->withTest($test);
+
+        $testsList = collect();
+        for($i = 0; $i < 10; $i++){
+            /** @var Test $testAux */
+            $testAux = Test::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->withSeries($seriesList->random())->create();
+            $testAux->tags()->saveMany($tags->random(3));
+            Question::factory()->count(5)->withTest($test)->create();
+            Result::factory()->count(50)->withUser($studentUserList->random())->withTest($test);
+
+            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($testAux)->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($comments->random())->create();
+
+            $testsList->add($testAux);
+        }
+
+        // Favorite
+        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($postsList->random())->create();
+        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($seriesList->random())->create();
+        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($testsList->random())->create();
+
+        // History
+        History::factory()->count(10)->withUser($studentUserList->random())->withHistoryAble($postsList->random())->create();
+        History::factory()->count(10)->withUser($studentUserList->random())->withHistoryAble($testsList->random())->create();
+        History::factory()->count(10)->withUser($studentUserList->random())->withHistoryAble($seriesList->random()->episodes()->get()->random())->create();
     }
 }

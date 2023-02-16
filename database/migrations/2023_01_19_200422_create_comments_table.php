@@ -13,15 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
+            $table->uuidMorphs('commentable');
             $table->text('body');
-            $table->uuid('user_id');
-            $table->uuid('language_id');
+            $table->uuid('author_id');
+            $table->enum('type', ['comment', 'note']);
 
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('language_id')->references('id')->on('languages');
+            $table->foreign('author_id')->references('id')->on('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -33,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('comments');
     }
 };
