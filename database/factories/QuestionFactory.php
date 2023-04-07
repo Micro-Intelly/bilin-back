@@ -21,10 +21,10 @@ class QuestionFactory extends Factory
         return [
             'question' => 'Test question',
             'answers' => json_encode([
-                1 => 'question 1',
-                2 => 'question 2',
-                3 => 'question 3',
-                4 => 'question 4'
+                1 => 'answer 1',
+                2 => 'answer 2',
+                3 => 'answer 3',
+                4 => 'answer 4'
             ]),
             'correct_answer' => rand(1, 4),
             'test_id' => Test::factory()

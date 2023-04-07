@@ -15,12 +15,16 @@ return new class extends Migration
     {
         Schema::create('tests', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            $table->string('title');
             $table->text('description')->nullable();
             $table->uuid('series_id')->nullable();
+            $table->enum('access', ['public', 'registered','org']);
+            $table->enum('level', ['basic', 'intermediate','advanced']);
             $table->uuid('language_id');
             $table->uuid('user_id');
+            $table->uuid('organization_id')->nullable();
 
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreign('language_id')->references('id')->on('languages');
             $table->foreign('series_id')->references('id')->on('series')->cascadeOnDelete();

@@ -21,12 +21,12 @@ class FileFactory extends Factory
         return [
             'name' => fake()->words(rand(2, 7), true),
             'description' => fake()->paragraph(),
-            'path' => '/app/file/dummy.pdf',
+            'path' => '/app/files/dummy.pdf',
             'series_id' => Serie::factory()
         ];
     }
     /**
-     * Create comment with specific author.
+     * Create file with specific series.
      * @param Serie $series
      * @return FileFactory
      */

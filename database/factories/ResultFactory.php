@@ -17,36 +17,48 @@ class ResultFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    #[ArrayShape(['result' => "float", 'user_id' => "\Database\Factories\UserFactory", 'test_id' => "\Database\Factories\TestFactory"])]
+    #[ArrayShape(['result' => "float", 'n_try' => "int", 'user_id' => "\Database\Factories\UserFactory", 'test_id' => "\Database\Factories\TestFactory"])]
     public function definition(): array
     {
         return [
             'result' => fake()->randomFloat(2, 0, 10),
+            'n_try' => fake()->numberBetween(0,10),
             'user_id' => User::factory(),
             'test_id' => Test::factory()
         ];
     }
 
     /**
-     * Create comment with specific user.
+     * Create result with specific user.
      * @param User $user
      * @return ResultFactory
      */
     public function withUser(User $user): ResultFactory
     {
         return $this->state(fn (array $attributes) => [
-            'author_id' => $user,
+            'user_id' => $user,
         ]);
     }
     /**
-     * Create comment with specific test.
+     * Create result with specific test.
      * @param Test $test
      * @return ResultFactory
      */
     public function withTest(Test $test): ResultFactory
     {
         return $this->state(fn (array $attributes) => [
-            'author_id' => $test,
+            'test_id' => $test,
+        ]);
+    }
+    /**
+     * Create result with specific number of try.
+     * @param int $num
+     * @return ResultFactory
+     */
+    public function withTry(int $num): ResultFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'n_try' => $num,
         ]);
     }
 }

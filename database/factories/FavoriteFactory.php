@@ -52,7 +52,7 @@ class FavoriteFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'favorite_able_id' => $favorite_able,
-            'favorite_able_type' => class_basename($favorite_able),
+            'favorite_able_type' => get_class($favorite_able),
         ]);
     }
     /**

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Language;
+use App\Models\Organization;
 use App\Models\Serie;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -17,20 +18,23 @@ class TestFactory extends Factory
      * Define the model's default state.
      * @return array<string, mixed>
      */
-    #[ArrayShape(['name' => "array|string", 'description' => "string", 'series_id' => "\Database\Factories\SerieFactory", 'language_id' => "\Database\Factories\LanguageFactory", 'user_id' => "\Database\Factories\UserFactory"])]
+    #[ArrayShape(['title' => "array|string", 'description' => "string", 'level' => "mixed", 'access' => "mixed", 'series_id' => "null", 'language_id' => "\Database\Factories\LanguageFactory", 'user_id' => "\Database\Factories\UserFactory", 'organization_id' => "null"])]
     public function definition(): array
     {
         return [
-            'name' => fake()->words(rand(2, 7), true),
+            'title' => fake()->words(rand(2, 7), true),
             'description' => fake()->paragraph(),
-            'series_id' => Serie::factory(),
+            'level' => fake()->randomElement(['basic', 'intermediate','advanced']),
+            'access' => fake()->randomElement(['public', 'registered']),
+            'series_id' => null,
             'language_id' => Language::factory(),
-            'user_id' => User::factory()
+            'user_id' => User::factory(),
+            'organization_id' => null
         ];
     }
 
     /**
-     * Create comment with specific author.
+     * Create test with specific series.
      * @param Serie $series
      * @return TestFactory
      */
@@ -38,10 +42,12 @@ class TestFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'series_id' => $series,
+            'level' => $series->level,
+            'access' => $series->access,
         ]);
     }
     /**
-     * Create comment with specific language.
+     * Create test with specific language.
      * @param Language $language
      * @return TestFactory
      */
@@ -52,7 +58,7 @@ class TestFactory extends Factory
         ]);
     }
     /**
-     * Create comment with specific author.
+     * Create test with specific author.
      * @param User $user
      * @return TestFactory
      */
@@ -60,6 +66,18 @@ class TestFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'user_id' => $user,
+        ]);
+    }
+    /**
+     * Create test with specific organization.
+     * @param Organization $org
+     * @return TestFactory
+     */
+    public function withOrg(Organization $org): TestFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'access' => 'org',
+            'organization_id' => $org,
         ]);
     }
 }

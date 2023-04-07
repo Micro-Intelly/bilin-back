@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('results', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->decimal('result');
+            $table->integer('n_try');
 
             $table->uuid('user_id');
             $table->uuid('test_id');

@@ -14,12 +14,13 @@ class LanguageFactory extends Factory
      * Define the model's default state.
      * @return array<string, mixed>
      */
-    #[ArrayShape(['language' => "string", 'code' => "string", 'language_able_id' => "mixed", 'language_able_type' => "mixed"])]
+    #[ArrayShape(['language' => "string", 'code' => "string", 'home_phrase' => "string"])]
     public function definition() : array
     {
         return [
             'language' => fake()->word(),
-            'code' => fake()->word(),
+            'code' => fake()->unique()->word(),
+            'home_phrase' => fake()->paragraph(1),
         ];
     }
     /**
@@ -33,6 +34,17 @@ class LanguageFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'language' => $language,
             'code' => $code
+        ]);
+    }
+    /**
+     * Method to create language with specific home phrase
+     * @param string $phrase
+     * @return LanguageFactory
+     */
+    public function withPhrase(string $phrase): LanguageFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'home_phrase' => $phrase,
         ]);
     }
 }

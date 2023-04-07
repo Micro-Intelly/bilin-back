@@ -32,7 +32,7 @@ class SerieFactory extends Factory
         ];
     }
     /**
-     * Create comment with specific author.
+     * Create series with specific author.
      * @param User $user
      * @return SerieFactory
      */
@@ -43,7 +43,7 @@ class SerieFactory extends Factory
         ]);
     }
     /**
-     * Create comment with specific organization.
+     * Create series with specific organization.
      * @param Organization $org
      * @return SerieFactory
      */
@@ -55,7 +55,7 @@ class SerieFactory extends Factory
         ]);
     }
     /**
-     * Create comment with specific language.
+     * Create series with specific language.
      * @param Language $language
      * @return SerieFactory
      */

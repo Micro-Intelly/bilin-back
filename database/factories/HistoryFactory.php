@@ -20,12 +20,13 @@ class HistoryFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    #[ArrayShape(['user_id' => "\Database\Factories\UserFactory", 'history_able_id' => "mixed", 'history_able_type' => "mixed"])]
+    #[ArrayShape(['user_id' => "\Database\Factories\UserFactory", 'serie_id' => "null", 'history_able_id' => "mixed", 'history_able_type' => "mixed"])]
     public function definition(): array
     {
         $history_able = $this->history_able();
         return [
             'user_id' => User::factory(),
+            'serie_id' => null,
             'history_able_id' => $history_able::factory(),
             'history_able_type' => $history_able
         ];
@@ -50,9 +51,14 @@ class HistoryFactory extends Factory
      */
     public function withHistoryAble(mixed $history_able): HistoryFactory
     {
+        $serie_id = null;
+        if(str_ends_with(get_class($history_able), "Episode")){
+            $serie_id = $history_able->serie_id;
+        }
         return $this->state(fn (array $attributes) => [
             'history_able_id' => $history_able,
-            'history_able_type' => class_basename($history_able),
+            'history_able_type' => get_class($history_able),
+            'serie_id' => $serie_id
         ]);
     }
     /**

@@ -18,6 +18,7 @@ use App\Models\Tag;
 use App\Models\Test;
 use Database\Factories\FavoriteFactory;
 use Database\Factories\SerieFactory;
+use Database\Factories\TestFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
@@ -133,8 +134,9 @@ class DatabaseSeeder extends Seeder
         // Series, Section, Episode, Comment, File
         $seriesList = collect();
         for($i = 0; $i < 10; $i++){
+            $teacherSelected = $teacherUserList->random();
             $seriesAuxFactory = Serie::factory()
-                ->withUser($studentUser)
+                ->withUser($teacherSelected)
                 ->withLanguage($languages->random());
             $orgAux = $orgWithNull->random();
             if($orgAux != null){
@@ -143,12 +145,19 @@ class DatabaseSeeder extends Seeder
             /** @var Serie $seriesAux */
             $seriesAux = $seriesAuxFactory->create();
             $seriesAux->tags()->saveMany($tags->random(3));
+            File::factory()->count(3)->withSeries($seriesAux)->create();
+            Comment::factory()->count(2)->withUser($teacherSelected)->withCommentable($seriesAux)->isNote()->create();
 
             $sectionsList = Section::factory()->count(3)->withSeries($seriesAux)->create();
-            $episodesList = Episode::factory()->count(12)->withSections($sectionsList->random())->create();
-            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($comments->random())->create();
-            File::factory()->count(3)->withSeries($seriesAux)->create();
+            $episodesList = collect();
+            foreach($sectionsList as $section){
+                $episodeAux = Episode::factory()->count(4)->withSection($section)->create();
+                $episodesList = $episodesList->concat($episodeAux);
+            }
+            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->isComment()->create();
+            $subComments = Comment::factory()->count(10)->withUser($studentUserList->random())->withRoot($comments->random())->isComment()->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withInReplyTo($subComments->random())->isComment()->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->isNote()->create();
 
             $seriesList->add($seriesAux);
         }
@@ -156,14 +165,19 @@ class DatabaseSeeder extends Seeder
         /** @var Post $post */
         $post = Post::factory()->withUser($studentUser)->withLanguage($languages->random())->create();
         $post->tags()->saveMany($tags->random(3));
+        $comments = Comment::factory()->count(10)->withUser($studentUser)->withCommentable($post)->isComment()->create();
+        $subComments = Comment::factory()->count(10)->withUser($studentUser)->withRoot($comments->random())->isComment()->create();
+        Comment::factory()->count(10)->withUser($studentUser)->withInReplyTo($subComments->random())->isComment()->create();
+
         $postsList = collect();
         for($i = 0; $i < 10; $i++){
             /** @var Post $postAux */
             $postAux = Post::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->create();
             $postAux->tags()->saveMany($tags->random(3));
 
-            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($postAux)->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($comments->random())->create();
+            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($postAux)->isComment()->create();
+            $subComments = Comment::factory()->count(10)->withUser($studentUserList->random())->withRoot($comments->random())->isComment()->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withInReplyTo($subComments->random())->isComment()->create();
 
             $postsList->add($postAux);
         }
@@ -173,26 +187,34 @@ class DatabaseSeeder extends Seeder
         $test = Test::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->create();
         $test->tags()->saveMany($tags->random(3));
         Question::factory()->count(5)->withTest($test)->create();
-        Result::factory()->count(50)->withUser($teacherUserList->random())->withTest($test);
+        Result::factory()->count(10)->withUser($studentUser)->withTest($test)->create();
 
         $testsList = collect();
         for($i = 0; $i < 10; $i++){
+            $testAuxFactory = Test::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->withSeries($seriesList->random());
+            $orgAux = $orgWithNull->random();
+            if($orgAux != null){
+                $testAuxFactory = $testAuxFactory->withOrg($orgAux);
+            }
             /** @var Test $testAux */
-            $testAux = Test::factory()->withUser($teacherUserList->random())->withLanguage($languages->random())->withSeries($seriesList->random())->create();
-            $testAux->tags()->saveMany($tags->random(3));
-            Question::factory()->count(5)->withTest($test)->create();
-            Result::factory()->count(50)->withUser($studentUserList->random())->withTest($test);
+            $testAux = $testAuxFactory->create();
 
-            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($testAux)->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($comments->random())->create();
+            $testAux->tags()->saveMany($tags->random(3));
+            Question::factory()->count(5)->withTest($testAux)->create();
+
+            Result::factory()->count(10)->withUser($studentUserList->random())->withTest($testAux)->create();
+
+            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($testAux)->isComment()->create();
+            $subComments = Comment::factory()->count(10)->withUser($studentUserList->random())->withRoot($comments->random())->isComment()->create();
+            Comment::factory()->count(10)->withUser($studentUserList->random())->withInReplyTo($subComments->random())->isComment()->create();
 
             $testsList->add($testAux);
         }
 
         // Favorite
-        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($postsList->random())->create();
-        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($seriesList->random())->create();
-        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($testsList->random())->create();
+//        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($postsList->random())->create();
+//        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($seriesList->random())->create();
+//        Favorite::factory()->count(10)->withUser($studentUserList->random())->withFavoriteAble($testsList->random())->create();
 
         // History
         History::factory()->count(10)->withUser($studentUserList->random())->withHistoryAble($postsList->random())->create();

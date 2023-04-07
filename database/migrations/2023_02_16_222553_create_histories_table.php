@@ -17,7 +17,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuidMorphs('history_able');
             $table->uuid('user_id');
+            $table->uuid('serie_id')->nullable();
+
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('serie_id')->references('id')->on('series');
             $table->timestamps();
         });
     }
