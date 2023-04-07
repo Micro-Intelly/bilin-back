@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEpisodeRequest;
+use App\Http\Requests\UpdateEpisodeRequest;
+use App\Models\Episode;
 use App\Models\Post;
+use App\Models\Serie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -11,37 +15,71 @@ use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-    public function testGet($id){
-        return ;
-    }
-    public function testShowV(Request $request)
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request): JsonResponse
     {
-
-        $stream = new VideoStreamController(storage_path() . '/app/videos/file_example_MP4_1920_18MG.mp4');
-        $stream->start();exit;
-/*
-        $path = storage_path() . '/app/public/file_example_MP4_1920_18MG.mp4';
-
-//        if(!File::exists($path)) {
-//            return response()->json(['message'=>'File not found'], Response::HTTP_NOT_FOUND);
-//        }
-
-        $headers = [
-            'Content-Type'        => 'video/mp4',
-            'Content-Length'      => File::size($path),
-            'Content-Disposition' => 'attachment; filename="file_example_MP4_1920_18MG.mp4"'
-        ];
-
-        return Response::stream(function() use ($path) {
-            $stream = fopen($path, 'r');
-            fpassthru($stream);
-        }, 200, $headers);
-*/
+//        $series = ($request->user() != null)
+        return response()->json(Post::with('author:id,name,email','language','tags')->get());
     }
-    public function testShowP(Request $request)
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
     {
-        $stream = new VideoStreamController(storage_path() . '/app/podcasts/Free_Test_Data_10MB_MP3.mp3');
-        $stream->start();exit;
+        //
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Post $post)
+    {
+        $post->load('author:id,name,email');
+        return response()->json($post);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Post $post)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Post $post)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Post $post)
+    {
+        //
+    }
 }

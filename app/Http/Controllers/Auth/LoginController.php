@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Serie;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -52,5 +54,20 @@ class LoginController extends Controller
         return response()->json([
             'message' => 'User logged out successfully'
         ]);
+    }
+
+    /**
+     * Method to check if user is logged in
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function isLoggedIn(Request $request): JsonResponse
+    {
+        $checkAuth = $request->user() != null;
+        $res = null;
+        if($checkAuth){
+            $res = $request->user();
+        }
+        return response()->json($res);
     }
 }

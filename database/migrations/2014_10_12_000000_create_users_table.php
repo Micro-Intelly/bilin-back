@@ -17,8 +17,12 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('thumbnail')->default('storage/image/user/account-thumbnail.png');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->uuid('organization_id')->nullable();
+
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->rememberToken();
             $table->timestamps();
         });
