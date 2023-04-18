@@ -40,6 +40,19 @@ class Comment extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'body',
+        'title',
+        'description',
+        'author_id',
+        'in_reply_to_id',
+        'root_comm_id',
+        'type',
+        'serie_id',
+        'commentable_id',
+        'commentable_type',
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');

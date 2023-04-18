@@ -47,6 +47,9 @@ Route::get('/tests/{test}/results', [TestController::class, 'showResultAverage']
 Route::get('/tags', [TagController::class, 'index'])->name('tag.index');
 Route::get('/languages', [LanguageController::class, 'index'])->name('language.index');
 Route::get('/comments/{id}', [CommentController::class, 'index'])->name('comments.index');
+Route::post('/comments/{type}', [CommentController::class, 'store'])->name('comments.store');
+Route::patch('/comments/{id}', [CommentController::class, 'update'])->name('comments.update');
+Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
 Route::get('/files/{file}', [FileController::class, 'show'])->name('files.show');
 Route::get('/user/{user}/series', [UserController::class, 'index_series'])->name('user.index.series');
 Route::get('/user/{user}/posts', [UserController::class, 'index_posts'])->name('user.index.posts');
@@ -55,6 +58,7 @@ Route::get('/user/{user}/comments', [UserController::class, 'index_comments'])->
 Route::get('/user/{user}/histories/episodes', [HistoryController::class, 'index_episodes'])->name('history.index.episodes');
 Route::get('/user/{user}/histories/posts', [HistoryController::class, 'index_posts'])->name('history.index.posts');
 Route::get('/user/{user}/histories/tests', [HistoryController::class, 'index_tests'])->name('history.index.tests');
+Route::post('/comment/image/upload', [CommentController::class, 'image_store'])->name('comment.image.store');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::middleware(['permission:manage-self-user'])->get('/users/{user}', [UserController::class, 'show'])->name('user.show');
