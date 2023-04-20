@@ -45,6 +45,13 @@ class Post extends Model
 
     public $incrementing = false;
 
+    protected $fillable = [
+        'title',
+        'body',
+        'user_id',
+        'language_id',
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -52,6 +59,10 @@ class Post extends Model
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+    public function histories(): MorphMany
+    {
+        return $this->morphMany(History::class, 'history_able');
     }
     public function language(): BelongsTo
     {

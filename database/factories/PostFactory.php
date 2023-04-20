@@ -21,7 +21,7 @@ class PostFactory extends Factory
     {
         return [
             'title' => fake()->sentence(),
-            'body' => fake()->text(1000),
+            'body' => '<p>'.fake()->text(1000).'</p>',
             'user_id' => User::factory(),
             'language_id' => Language::factory(),
         ];
