@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\UserController;
+use App\Models\Episode;
+use App\Models\Org_user;
+use App\Models\Organization;
 use App\Models\Serie;
+use App\Models\Test;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -64,10 +69,11 @@ class LoginController extends Controller
     public function isLoggedIn(Request $request): JsonResponse
     {
         $checkAuth = $request->user() != null;
-        $res = null;
+        $res = response()->json(null);
         if($checkAuth){
-            $res = $request->user();
+            $user = User::with('organizations','organization')->findOrFail($request->user()->id);
+            $res = UserController::getUserData($user);
         }
-        return response()->json($res);
+        return $res;
     }
 }

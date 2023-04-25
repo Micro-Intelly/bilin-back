@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
+use App\Models\Episode;
+use App\Models\Org_user;
+use App\Models\Organization;
 use App\Models\Post;
 use App\Models\Serie;
 use App\Models\Test;
@@ -25,12 +28,24 @@ class UserController extends Controller
      */
     public function show(User $user): JsonResponse
     {
-        return response()->json($user);
+        $user = User::with('organizations','organization')->findOrFail($user->id);
+        return UserController::getUserData($user);
     }
 
     public function showCurrentUser(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        $user = User::with('organizations','organization')->findOrFail($request->user()->id);
+        return UserController::getUserData($user);
+    }
+
+    public function getLimits(Request $request): JsonResponse
+    {
+        return response()->json([
+            'episode_limit' => 30,
+            'test_limit' => 10,
+            'episode_limit_org' => 100,
+            'test_limit_org' => 100,
+        ]);
     }
 
     /**
@@ -43,9 +58,26 @@ class UserController extends Controller
     {
         return response()->json(
             Serie::where('author_id','=',$user)
+                ->with('language','organization')
                 ->orderBy('updated_at','desc')
                 ->get());
     }
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  string  $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index_organizations(string $user): JsonResponse
+    {
+        return response()->json(
+            Organization::whereHas('users',function($q) use($user) {
+                    $q->where('id','=', $user);
+                })
+                ->orderBy('name')
+                ->get());
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -137,8 +169,8 @@ class UserController extends Controller
     {
         if($request->user() != null &&
             ($request->user()->can('manage-user') ||
-            $request->user()->id === $user->id
-        )) {
+            $request->user()->id === $user->id))
+        {
             try {
                 Auth::logout();
                 $request->session()->invalidate();
@@ -152,5 +184,25 @@ class UserController extends Controller
         } else {
             abort(401);
         }
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Builder|array|null $user
+     * @return JsonResponse
+     */
+    public static function getUserData(User $user): JsonResponse
+    {
+        $res = $user->toArray() + [
+                'role' => $user->getRoleNames()->join(','),
+                'org_count' => Org_user::where('user_id', '=', $user->id)->count(),
+                'orgs' => Organization::select('name')->whereHas('users', function ($q) use ($user) {
+                    $q->where('id', '=', $user->id);
+                })
+                    ->orderBy('name')
+                    ->get()->pluck('name')->join(','),
+                'episode_used' => Episode::where('user_id', '=', $user->id)->count(),
+                'test_used' => Test::where('user_id', '=', $user->id)->count()
+            ];
+        return response()->json($res);
     }
 }

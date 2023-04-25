@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->uuid('series_id')->nullable();
-            $table->enum('access', ['public', 'registered','org']);
-            $table->enum('level', ['basic', 'intermediate','advanced']);
+            $table->enum('access', ['public', 'registered','org'])->default('public');
+            $table->enum('level', ['basic', 'intermediate','advanced'])->default('basic');
             $table->uuid('language_id');
             $table->uuid('user_id');
             $table->uuid('organization_id')->nullable();

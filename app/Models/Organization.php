@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Http\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Organization
@@ -28,4 +30,9 @@ use Illuminate\Database\Eloquent\Model;
 class Organization extends Model
 {
     use HasFactory, UuidTrait;
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class,'org_users');
+    }
 }

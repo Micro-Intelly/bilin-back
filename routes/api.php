@@ -34,6 +34,7 @@ Route::post('/signup', [RegisterController::class, 'signup'])->name('signup');
 
 Route::get('/isLoggedIn', [LoginController::class,'isLoggedIn'])->name('user.check');
 Route::get('/user/currentUser', [UserController::class,'showCurrentUser'])->name('user.showCurrentUser');
+Route::get('/user/limits', [UserController::class,'getLimits'])->name('user.getLimits');
 Route::patch('/user/{user}', [UserController::class,'update'])->name('user.update');
 Route::post('/user/{user}/thumbnail', [UserController::class,'updateThumbnail'])->name('user.updateThumbnail');
 Route::delete('/user/{user}', [UserController::class,'destroy'])->name('user.destroy');
@@ -48,6 +49,9 @@ Route::post('/posts', [PostController::class, 'store'])->name('post.store');
 Route::patch('/posts/{id}', [PostController::class, 'update'])->name('post.update');
 Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('post.destroy');
 Route::get('/tests', [TestController::class, 'index'])->name('test.index');
+Route::post('/tests', [TestController::class, 'store'])->name('test.store');
+Route::patch('/tests/{test}', [TestController::class, 'update'])->name('test.update');
+Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('test.destroy');
 Route::get('/tests/{test}', [TestController::class, 'show'])->name('test.show');
 Route::get('/tests/{test}/questions', [QuestionController::class, 'index'])->name('question.index');
 Route::get('/tests/{test}/results', [TestController::class, 'showResultAverage'])->name('test.showResultAverage');
@@ -59,6 +63,7 @@ Route::patch('/comments/{id}', [CommentController::class, 'update'])->name('comm
 Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
 Route::get('/files/{file}', [FileController::class, 'show'])->name('files.show');
 Route::get('/user/{user}/series', [UserController::class, 'index_series'])->name('user.index.series');
+Route::get('/user/{user}/organizations', [UserController::class, 'index_organizations'])->name('user.index.organizations');
 Route::get('/user/{user}/posts', [UserController::class, 'index_posts'])->name('user.index.posts');
 Route::get('/user/{user}/tests', [UserController::class, 'index_tests'])->name('user.index.test');
 Route::get('/user/{user}/comments', [UserController::class, 'index_comments'])->name('user.index.comments');

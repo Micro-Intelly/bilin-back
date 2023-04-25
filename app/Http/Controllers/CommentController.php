@@ -166,8 +166,8 @@ class CommentController extends Controller
         $comment = Comment::findOrFail($id);
         if($request->user() != null &&
             ($request->user()->can('manage-comment') ||
-            $request->user()->id === $comment->author_id
-        )) {
+            $request->user()->id === $comment->author_id))
+        {
             try {
                 Comment::destroy($id);
                 return response()->json(['status' => 200, 'message' => 'Success']);

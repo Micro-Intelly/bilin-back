@@ -47,6 +47,17 @@ class Test extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'title',
+        'description',
+        'series_id',
+        'access',
+        'level',
+        'organization_id',
+        'user_id',
+        'language_id',
+    ];
+
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
@@ -74,5 +85,9 @@ class Test extends Model
     public function results(): HasMany
     {
         return $this->HasMany(Result::class)->orderBy('n_try');
+    }
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class)->orderBy('name');
     }
 }

@@ -2,23 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreEpisodeRequest;
-use App\Http\Requests\UpdateEpisodeRequest;
-use App\Models\Comment;
-use App\Models\Episode;
 use App\Models\Post;
-use App\Models\Serie;
-use App\Models\Tag;
-use App\Models\Taggable;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
 class PostController extends Controller
@@ -62,7 +49,7 @@ class PostController extends Controller
                 'user_id' => $request->user()->id,
                 'language_id' => $request->get('language_id'),
             ]);
-            $this->tagControl($request, $post->id);
+            TagController::tagControl($request, $post->id, Post::class);
 
             return response()->json(['status' => 200, 'message' => 'Created']);
         } catch (Exception $exception) {
@@ -115,7 +102,7 @@ class PostController extends Controller
                     'body' => $body
                 ]);
 
-                $this->tagControl($request, $id);
+                TagController::tagControl($request, $id, Post::class);
 
                 return response()->json(['status' => 200, 'message' => 'Updated']);
             } catch (Exception $exception) {
@@ -136,8 +123,8 @@ class PostController extends Controller
     {
         if($request->user() != null &&
             ($request->user()->can('manage-post') ||
-            $request->user()->id === $post->user_id
-        )) {
+            $request->user()->id === $post->user_id))
+        {
             try {
                 $post->delete();
                 return response()->json(['status' => 200, 'message' => 'Success']);
@@ -146,46 +133,6 @@ class PostController extends Controller
             }
         } else {
             abort(401);
-        }
-    }
-
-    private function tagControl(Request $request, string $id): void
-    {
-        $tags = $request->get('tags_id');
-        $newTags = $request->get('new_tags');
-        Taggable::select('tag_id')->where('taggable_id','=',$id)->delete();
-        $taggablesToInsert = [];
-        foreach($tags as $tag){
-            $taggablesToInsert[] = [
-                'tag_id' => $tag,
-                'taggable_id' => $id,
-                'taggable_type' => Post::class
-            ];
-        }
-        Taggable::insert($taggablesToInsert);
-
-        if(sizeof($newTags) > 0){
-            $tagsToInsert = [];
-            $now = Carbon::now('utc')->toDateTimeString();
-            foreach($newTags as $tag){
-                $tagsToInsert[] = [
-                    'id' => Str::uuid()->toString(),
-                    'name' => $tag,
-                    'created_at'=> $now,
-                    'updated_at'=> $now
-                ];
-            }
-            Tag::insert($tagsToInsert);
-            $insertRes = Tag::select('id')->whereIn('name', $newTags)->pluck('id');
-            $taggablesToInsert2 = [];
-            foreach($insertRes as $tagId){
-                $taggablesToInsert2[] = [
-                    'tag_id' => $tagId,
-                    'taggable_id' => $id,
-                    'taggable_type' => Post::class
-                ];
-            }
-            Taggable::insert($taggablesToInsert2);
         }
     }
 }
