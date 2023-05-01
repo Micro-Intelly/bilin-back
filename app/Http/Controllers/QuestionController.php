@@ -20,7 +20,16 @@ class QuestionController extends Controller
      */
     public function index(Request $request, string $test): JsonResponse
     {
-        return response()->json(Question::select('id','question','answers')->where('test_id','=',$test)->get());
+        $columns = ['id','question','answers'];
+        if($request->user() != null &&
+            Test::find($test)->user_id == $request->user()->id){
+            $columns[] = 'correct_answer';
+        }
+        return response()->json(
+            Question::select($columns)
+                ->where('test_id','=',$test)
+                ->get()
+        );
     }
 
     /**

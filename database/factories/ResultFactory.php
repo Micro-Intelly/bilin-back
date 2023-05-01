@@ -22,7 +22,7 @@ class ResultFactory extends Factory
     {
         return [
             'result' => fake()->randomFloat(2, 0, 10),
-            'n_try' => fake()->numberBetween(0,10),
+            'n_try' => fake()->numberBetween(1,10),
             'user_id' => User::factory(),
             'test_id' => Test::factory()
         ];

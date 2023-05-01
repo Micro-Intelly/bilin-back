@@ -30,6 +30,13 @@ class Result extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'n_try',
+        'result',
+        'user_id',
+        'test_id',
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

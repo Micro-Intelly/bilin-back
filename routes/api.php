@@ -55,6 +55,8 @@ Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('test.d
 Route::get('/tests/{test}', [TestController::class, 'show'])->name('test.show');
 Route::get('/tests/{test}/questions', [QuestionController::class, 'index'])->name('question.index');
 Route::get('/tests/{test}/results', [TestController::class, 'showResultAverage'])->name('test.showResultAverage');
+Route::post('/tests/{test}/questions', [TestController::class, 'updateQuestions'])->name('test.updateQuestions');
+Route::post('/tests/{test}/answers', [TestController::class, 'postAnswer'])->name('test.postAnswer');
 Route::get('/tags', [TagController::class, 'index'])->name('tag.index');
 Route::get('/languages', [LanguageController::class, 'index'])->name('language.index');
 Route::get('/comments/{id}', [CommentController::class, 'index'])->name('comments.index');
