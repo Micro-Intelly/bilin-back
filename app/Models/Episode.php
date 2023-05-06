@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Storage;
 
 /**
  * App\Models\Episode
@@ -35,6 +36,28 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Episode extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'title',
+        'description',
+        'serie_id',
+        'path',
+        'type',
+        'section_id',
+        'user_id'
+    ];
+
+    public static function boot() {
+        parent::boot();
+
+        self::deleting(function($episode) {
+            $episodeCount = Episode::where('path','=', $episode->path)->count();
+            $episodePath = substr($episode->path, 5);
+            if(Storage::disk('local')->exists($episodePath) && $episodeCount < 2) {
+                Storage::disk('local')->delete($episodePath);
+            }
+        });
+    }
 
     public function section(): BelongsTo
     {

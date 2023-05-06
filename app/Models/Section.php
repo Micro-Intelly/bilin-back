@@ -33,6 +33,12 @@ class Section extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'name',
+        'description',
+        'series_id',
+    ];
+
     public function episodes(): HasMany
     {
         return $this->hasMany(Episode::class,'section_id');

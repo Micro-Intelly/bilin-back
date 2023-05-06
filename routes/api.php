@@ -9,6 +9,7 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SerieController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TestController;
@@ -39,10 +40,27 @@ Route::patch('/user/{user}', [UserController::class,'update'])->name('user.updat
 Route::post('/user/{user}/thumbnail', [UserController::class,'updateThumbnail'])->name('user.updateThumbnail');
 Route::delete('/user/{user}', [UserController::class,'destroy'])->name('user.destroy');
 Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+
 Route::get('/episode', [EpisodeController::class, 'testShowV'])->name('episode.index');
 Route::get('/stream/{episode}', [EpisodeController::class, 'stream'])->name('episode.stream');
 Route::get('/series', [SerieController::class, 'index'])->name('series.index');
 Route::get('/series/{serie}', [SerieController::class, 'show'])->name('series.show');
+Route::post('/series', [SerieController::class, 'store'])->name('series.store');
+Route::post('/series/{serie}/thumbnail', [SerieController::class,'updateThumbnail'])->name('series.updateThumbnail');
+Route::post('/series/{serie}/files', [FileController::class,'store'])->name('file.store');
+Route::delete('/series/{serie}/files/{file}', [FileController::class,'destroy'])->name('file.destroy');
+
+Route::post('/series/{serie}/sections', [SectionController::class,'store'])->name('section.store');
+Route::patch('/series/{serie}/sections/{section}', [SectionController::class,'update'])->name('section.update');
+Route::delete('/series/{serie}/sections/{section}', [SectionController::class,'destroy'])->name('section.destroy');
+
+Route::post('/series/{serie}/sections/{section}/episodes', [EpisodeController::class,'store'])->name('episode.store');
+Route::patch('/series/{serie}/sections/{section}/episodes/{episode}', [EpisodeController::class,'update'])->name('episode.update');
+Route::delete('/series/{serie}/sections/{section}/episodes/{episode}', [EpisodeController::class,'destroy'])->name('episode.destroy');
+
+Route::patch('/series/{serie}', [SerieController::class, 'update'])->name('series.update');
+Route::delete('/series/{serie}', [SerieController::class, 'destroy'])->name('series.destroy');
+
 Route::get('/posts', [PostController::class, 'index'])->name('post.index');
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('post.show');
 Route::post('/posts', [PostController::class, 'store'])->name('post.store');

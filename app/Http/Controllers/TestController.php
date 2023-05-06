@@ -46,7 +46,8 @@ class TestController extends Controller
             'language_id' => 'required|exists:languages,id',
             'access' => 'required',
             'level' => 'required',
-            'series_id' => 'exists:series,id|nullable'
+            'series_id' => 'exists:series,id|nullable',
+            'organization_id' => 'exists:organizations,id|nullable'
         ]);
 
         try{
@@ -134,7 +135,8 @@ class TestController extends Controller
                 'language_id' => 'required|exists:languages,id',
                 'access' => 'required',
                 'level' => 'required',
-                'series_id' => 'exists:series,id|nullable'
+                'series_id' => 'exists:series,id|nullable',
+                'organization_id' => 'exists:organizations,id|nullable'
             ]);
 
             try {

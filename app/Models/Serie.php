@@ -60,6 +60,18 @@ class Serie extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'title',
+        'description',
+        'access',
+        'level',
+        'type',
+        'organization_id',
+        'author_id',
+        'language_id',
+        'image'
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
@@ -84,9 +96,13 @@ class Serie extends Model
     {
         return $this->morphToMany(Tag::class, 'taggable');
     }
+    public function tests(): HasMany
+    {
+        return $this->hasMany(Test::class, 'series_id');
+    }
     public function sections(): HasMany
     {
-        return $this->hasMany(Section::class,'series_id');
+        return $this->hasMany(Section::class,'series_id')->orderBy('created_at');
     }
     public function episodes(): HasManyThrough
     {
