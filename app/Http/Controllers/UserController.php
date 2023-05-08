@@ -21,6 +21,18 @@ use Mews\Purifier\Facades\Purifier;
 class UserController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request): JsonResponse
+    {
+        return response()->json(
+            User::with('organization')->orderBy('email')->get());
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param  \App\Models\User  $user
@@ -126,13 +138,24 @@ class UserController extends Controller
         {
             try {
                 $this->validate($request, [
-                    'name' => 'required|max:20',
+                    'name' => 'required|max:50',
                     'email' => 'required|max:100|email',
                 ]);
+                if($user->organization_id != null){
+                    $this->validate($request, [
+                        'orgName' => 'required|max:100',
+                    ]);
+                }
                 $user->update([
                     'name' => $request->get('name'),
                     'email' => $request->get('email'),
                 ]);
+                if($user->organization_id != null){
+                    $user->organization()->update([
+                        'name' => $request->get('orgName'),
+                        'description' => $request->get('orgDescription'),
+                    ]);
+                }
                 return response()->json(['status' => 200, 'message' => 'Updated']);
             } catch (Exception $exception) {
                 return response()->json(['status' => 400, 'message' => $exception->getMessage()]);

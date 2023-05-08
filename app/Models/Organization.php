@@ -31,8 +31,13 @@ class Organization extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'name',
+        'description',
+    ];
+
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class,'org_users');
+        return $this->belongsToMany(User::class,'org_users')->orderBy('email');
     }
 }

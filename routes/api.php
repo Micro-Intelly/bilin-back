@@ -7,6 +7,7 @@ use App\Http\Controllers\EpisodeController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\SectionController;
@@ -34,6 +35,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/signup', [RegisterController::class, 'signup'])->name('signup');
 
 Route::get('/isLoggedIn', [LoginController::class,'isLoggedIn'])->name('user.check');
+Route::get('/user', [UserController::class,'index'])->name('user.index');
 Route::get('/user/currentUser', [UserController::class,'showCurrentUser'])->name('user.showCurrentUser');
 Route::get('/user/limits', [UserController::class,'getLimits'])->name('user.getLimits');
 Route::patch('/user/{user}', [UserController::class,'update'])->name('user.update');
@@ -91,6 +93,11 @@ Route::get('/user/{user}/histories/episodes', [HistoryController::class, 'index_
 Route::get('/user/{user}/histories/posts', [HistoryController::class, 'index_posts'])->name('history.index.posts');
 Route::get('/user/{user}/histories/tests', [HistoryController::class, 'index_tests'])->name('history.index.tests');
 Route::post('/comment/image/upload', [CommentController::class, 'image_store'])->name('comment.image.store');
+
+Route::get('/organization/{organization}/users', [OrganizationController::class, 'index_users'])->name('organization.index.users');
+Route::post('/organization/{organization}/users', [OrganizationController::class, 'add_user'])->name('organization.add.user');
+Route::delete('/organization/{organization}/users/{user}', [OrganizationController::class, 'delete_user'])->name('organization.delete.user');
+
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::middleware(['permission:manage-self-user'])->get('/users/{user}', [UserController::class, 'show'])->name('user.show');

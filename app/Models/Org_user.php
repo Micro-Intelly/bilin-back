@@ -24,4 +24,9 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Org_user extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'user_id',
+        'organization_id'
+    ];
 }
