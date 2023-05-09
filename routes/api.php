@@ -98,6 +98,7 @@ Route::get('/organization/{organization}/users', [OrganizationController::class,
 Route::post('/organization/{organization}/users', [OrganizationController::class, 'add_user'])->name('organization.add.user');
 Route::delete('/organization/{organization}/users/{user}', [OrganizationController::class, 'delete_user'])->name('organization.delete.user');
 
+Route::post('/histories', [HistoryController::class, 'store'])->name('history.store');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::middleware(['permission:manage-self-user'])->get('/users/{user}', [UserController::class, 'show'])->name('user.show');

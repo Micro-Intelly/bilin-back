@@ -33,6 +33,13 @@ class History extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'user_id',
+        'serie_id',
+        'history_able_type',
+        'history_able_id'
+    ];
+
     public function history_able(): MorphTo
     {
         return $this->morphTo();

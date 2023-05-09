@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Episode;
 use App\Models\History;
 use App\Http\Requests\StoreHistoryRequest;
 use App\Http\Requests\UpdateHistoryRequest;
 use App\Models\Post;
+use App\Models\Serie;
+use App\Models\Test;
+use Exception;
 use Illuminate\Http\JsonResponse;
 
 class HistoryController extends Controller
@@ -81,9 +85,55 @@ class HistoryController extends Controller
      * @param  \App\Http\Requests\StoreHistoryRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreHistoryRequest $request)
+    public function store(StoreHistoryRequest $request): JsonResponse
     {
-        //
+        $this->validate($request, [
+            'serie_id' => 'exists:series,id|nullable',
+            'history_able_type' => 'required',
+            'history_able_id' => 'required',
+        ]);
+        $classType = match ($request->get('history_able_type')) {
+            'episode' => Episode::class,
+            'post' => Post::class,
+            'test' => Test::class,
+            default => '',
+        };
+        if($classType == ''){
+            return response()->json(['status' => 400, 'message'=>'Class type not exists']);
+        }
+
+        $recordExists = false;
+        switch ($classType){
+            case Episode::class : {
+                $recordExists = Episode::where('id',$request->get('history_able_id'))->exists();
+                break;
+            }
+            case Post::class : {
+                $recordExists = Post::where('id',$request->get('history_able_id'))->exists();
+                break;
+            }
+            case Test::class : {
+                $recordExists = Test::where('id',$request->get('history_able_id'))->exists();
+                break;
+            }
+        }
+        if(! $recordExists){
+            return response()->json(['status' => 400, 'message'=>'Record not exists']);
+        }
+        try {
+            $data = [
+              'user_id' => $request->user()->id,
+              'serie_id' => $request->get('serie_id'),
+              'history_able_id' => $request->get('history_able_id'),
+              'history_able_type' => $classType,
+            ];
+            $oldHis = History::where('history_able_id', $request->get('history_able_id'))->first();
+            $oldHis?->delete();
+            History::create($data);
+            return response()->json(['status' => 200, 'message' => 'Created']);
+        } catch (Exception $exception) {
+            return response()->json(['status' => 400, 'message' => $exception->getMessage()]);
+        }
     }
 
     /**
