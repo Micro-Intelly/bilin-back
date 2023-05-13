@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use phpDocumentor\Reflection\Types\Boolean;
+use Illuminate\Http\Request;
 
 /**
  * App\Models\Test
@@ -89,5 +91,34 @@ class Test extends Model
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class)->orderBy('name');
+    }
+
+    public static function validate_permission(Request $request, Test $test): bool
+    {
+        $validate = false;
+        if($test->access == 'public' ||
+            ($test->access == 'registered' && $request->user() != null) ||
+            ($request->user() != null && $request->user()->can('manage-test')))
+        {
+            $validate = true;
+        }
+        else if($test->access == 'org' && $request->user() != null)
+        {
+            $userOrgs = User::organization_ids($request->user()->id);
+            if($userOrgs->contains($test->organization_id)){
+                $validate = true;
+            }
+        }
+        return $validate;
+    }
+
+    public static function check_limits(Request $request): bool
+    {
+        $userOrg = (bool)$request->user()->organization_id;
+        if(!$userOrg){
+            $userOrg = Org_user::where('user_id', '=', $request->user()->id)->count() > 0;
+        }
+        $constantKey = $userOrg ? 'constants.limits.test_limit_org' : 'constants.limits.test_limit';
+        return Test::where('user_id', '=', $request->user()->id)->count() < config($constantKey);
     }
 }

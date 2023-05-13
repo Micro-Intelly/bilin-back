@@ -14,15 +14,6 @@ use Illuminate\Http\Request;
 
 class EpisodeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -41,33 +32,26 @@ class EpisodeController extends Controller
             ($request->user()->can('manage-series') ||
             $request->user()->id === $serie->author_id))
         {
-            $type = $request->file('file')->getMimeType() == 'video/mp4' ? 'video' : 'podcast';
-            $file_path = $request->file('file')->store($type.'s', 'local');
-            $data = [
-                'title' => $request->get('title'),
-                'description' => $request->get('description'),
-                'serie_id' => $serie->id,
-                'path' => '/app/'.$file_path,
-                'type' => $type,
-                'user_id' => $request->user()->id,
-                'section_id' => $section->id
-            ];
-            Episode::create($data);
-            return response()->json(['status' => 200, 'message' => 'Created']);
+            if(Episode::check_limits($request)){
+                $type = $request->file('file')->getMimeType() == 'video/mp4' ? 'video' : 'podcast';
+                $file_path = $request->file('file')->store($type.'s', 'local');
+                $data = [
+                    'title' => $request->get('title'),
+                    'description' => $request->get('description'),
+                    'serie_id' => $serie->id,
+                    'path' => '/app/'.$file_path,
+                    'type' => $type,
+                    'user_id' => $request->user()->id,
+                    'section_id' => $section->id
+                ];
+                Episode::create($data);
+                return response()->json(['status' => 200, 'message' => 'Created']);
+            } else {
+                return response()->json(['status' => 400, 'message' => 'Limit exceeded!']);
+            }
         } else {
             abort(401);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Episode  $episode
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Episode $episode)
-    {
-        //
     }
 
     /**

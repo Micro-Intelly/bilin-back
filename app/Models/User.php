@@ -98,4 +98,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class);
     }
+
+    public static function organization_ids(string $id): \Illuminate\Support\Collection
+    {
+        $user = User::where('id',$id)
+            ->with('organizations:id')
+            ->first();
+        $userOrgIds = $user->organizations->pluck('id');
+        if($user->organization_id != null){
+            $userOrgIds[] = $user->organization_id;
+        }
+        return $userOrgIds;
+    }
 }

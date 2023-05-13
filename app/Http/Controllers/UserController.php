@@ -32,18 +32,6 @@ class UserController extends Controller
             User::with('organization')->orderBy('email')->get());
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show(User $user): JsonResponse
-    {
-        $user = User::with('organizations','organization')->findOrFail($user->id);
-        return UserController::getUserData($user);
-    }
-
     public function showCurrentUser(Request $request): JsonResponse
     {
         $user = User::with('organizations','organization')->findOrFail($request->user()->id);
@@ -52,12 +40,7 @@ class UserController extends Controller
 
     public function getLimits(Request $request): JsonResponse
     {
-        return response()->json([
-            'episode_limit' => 30,
-            'test_limit' => 10,
-            'episode_limit_org' => 100,
-            'test_limit_org' => 100,
-        ]);
+        return response()->json(config('constants.limits'));
     }
 
     /**

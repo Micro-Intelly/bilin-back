@@ -21,11 +21,18 @@ class SerieController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-//        $series = ($request->user() != null)
-        return response()->json(
-            Serie::with('author:id,name,email', 'language','tags','organization')
-                ->orderBy('updated_at', 'desc')
-                ->get());
+        $series = Serie::with('author:id,name,email', 'language','tags','organization')
+            ->orderBy('updated_at', 'desc');
+        if($request->user() == null) {
+            $series = $series->where('access','=','public');
+        } else if (! $request->user()->can('manage-series') ) {
+            $userOrgs = User::organization_ids($request->user()->id);
+            $series = $series->whereIn('access',['public','registered'])
+                ->orWhere(function ($q) use ($userOrgs){
+                    $q->where('access', 'org')->whereIn('organization_id', $userOrgs);
+                });
+        }
+        return response()->json($series->get());
     }
 
     /**
@@ -71,12 +78,19 @@ class SerieController extends Controller
      * @param  \App\Models\Serie  $serie
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
-        return response()->json(Serie::with(
+        $serie = Serie::with(
             'author:id,name,email','language','tags', 'tests',
             'sections.episodes.author', 'comments', 'organization','files'
-        )->findOrFail($id));
+        )->findOrFail($id);
+
+        $validate = Serie::validate_permission($request, $serie);
+        if($validate){
+            return response()->json($serie);
+        } else {
+            abort(401);
+        }
     }
 
     /**

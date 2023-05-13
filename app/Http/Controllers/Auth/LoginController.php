@@ -42,7 +42,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
-        return response()->json($request->user());
+        return UserController::getUserData($request->user());
     }
 
     /**

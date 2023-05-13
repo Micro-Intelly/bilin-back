@@ -20,81 +20,24 @@ class QuestionController extends Controller
      */
     public function index(Request $request, string $test): JsonResponse
     {
-        $columns = ['id','question','answers'];
-        if($request->user() != null &&
-            Test::find($test)->user_id == $request->user()->id){
-            $columns[] = 'correct_answer';
+        $testObj = Test::findOrFail($test);
+        $validate = Test::validate_permission($request,$testObj);
+        if($validate){
+            $columns = ['id','question','answers'];
+            if($request->user() != null &&
+                (Test::find($test)->user_id == $request->user()->id ||
+                $request->user()->can('manage-test')
+                ))
+            {
+                $columns[] = 'correct_answer';
+            }
+            return response()->json(
+                Question::select($columns)
+                    ->where('test_id','=',$test)
+                    ->get()
+            );
+        } else {
+            abort(401);
         }
-        return response()->json(
-            Question::select($columns)
-                ->where('test_id','=',$test)
-                ->get()
-        );
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreQuestionRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreQuestionRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Question $question)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Question $question)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateQuestionRequest  $request
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateQuestionRequest $request, Question $question)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Question  $question
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Question $question)
-    {
-        //
     }
 }

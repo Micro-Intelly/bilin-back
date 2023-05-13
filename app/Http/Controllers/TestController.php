@@ -9,6 +9,7 @@ use App\Models\Serie;
 use App\Models\Test;
 use App\Http\Requests\StoreTestRequest;
 use App\Http\Requests\UpdateTestRequest;
+use App\Models\User;
 use Arr;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -25,11 +26,24 @@ class TestController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-//        $series = ($request->user() != null)
-        return response()
-            ->json(Test::with('author:id,name,email','language','tags')
-                ->withCount('questions')
-                ->orderBy('updated_at','desc')->get());
+        $test = Test::with('author:id,name,email','language','tags')
+            ->withCount('questions')
+            ->orderBy('updated_at','desc');
+        if($request->user() == null) {
+            $test = $test->where('access','=','public');
+        } else if (! $request->user()->can('manage-test') ) {
+            $userOrgs = User::where('id',$request->user()->id)
+                ->with('organizations:id')
+                ->first()->organizations->pluck('id');
+            if($request->user()->organization_id != null){
+                $userOrgs[] = $request->user()->organization_id;
+            }
+            $test = $test->whereIn('access',['public','registered'])
+                ->orWhere(function ($q) use ($userOrgs){
+                    $q->where('access', 'org')->whereIn('organization_id', $userOrgs);
+                });
+        }
+        return response()->json($test->get());
     }
 
     /**
@@ -51,34 +65,38 @@ class TestController extends Controller
         ]);
 
         try{
-            $access = $request->get('access');
-            $level = $request->get('level');
-            $organization_id = $request->get('organization_id');
-            $language_id = $request->get('language_id');
-            if($request->get('series_id') != null){
-                $serie = Serie::select(['access','level','language_id','organization_id'])
-                    ->where('id','=',$request->get('series_id'))
-                    ->first();
+            if(Test::check_limits($request)) {
+                $access = $request->get('access');
+                $level = $request->get('level');
+                $organization_id = $request->get('organization_id');
+                $language_id = $request->get('language_id');
+                if($request->get('series_id') != null){
+                    $serie = Serie::select(['access','level','language_id','organization_id'])
+                        ->where('id','=',$request->get('series_id'))
+                        ->first();
 
-                $access = $serie->access;
-                $level = $serie->level;
-                $organization_id = $serie->organization_id;
-                $language_id = $serie->language_id;
+                    $access = $serie->access;
+                    $level = $serie->level;
+                    $organization_id = $serie->organization_id;
+                    $language_id = $serie->language_id;
+                }
+
+                $test = Test::create([
+                    'title' => $request->get('title'),
+                    'description' => $request->get('description'),
+                    'user_id' => $request->user()->id,
+                    'series_id' => $request->get('series_id'),
+                    'language_id' => $language_id,
+                    'access' => $access,
+                    'level' => $level,
+                    'organization_id' => $organization_id,
+                ]);
+                TagController::tagControl($request, $test->id, Test::class);
+
+                return response()->json(['status' => 200, 'message' => 'Created']);
+            } else {
+                return response()->json(['status' => 400, 'message' => 'Limit exceeded!']);
             }
-
-            $test = Test::create([
-                'title' => $request->get('title'),
-                'description' => $request->get('description'),
-                'user_id' => $request->user()->id,
-                'series_id' => $request->get('series_id'),
-                'language_id' => $language_id,
-                'access' => $access,
-                'level' => $level,
-                'organization_id' => $organization_id,
-            ]);
-            TagController::tagControl($request, $test->id, Test::class);
-
-            return response()->json(['status' => 200, 'message' => 'Created']);
         } catch (Exception $exception) {
             return response()->json(['status' => 400, 'message' => $exception->getMessage()]);
         }
@@ -92,14 +110,19 @@ class TestController extends Controller
      */
     public function show(Request $request,Test $test)
     {
-        $query = Test::with('author:id,name,email','language','tags','serie:id,title','organization')->withCount('questions');
-        if($request->user() != null){
-            $userId = $request->user()->id;
-            $query->with(['results' => function($query) use ($userId) {
-                $query->where('user_id', $userId);
-            }]);
+        $validate = Test::validate_permission($request,$test);
+        if($validate){
+            $query = Test::with('author:id,name,email','language','tags','serie:id,title','organization')->withCount('questions');
+            if($request->user() != null){
+                $userId = $request->user()->id;
+                $query->with(['results' => function($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                }]);
+            }
+            return response()->json($query->find($test->id));
+        } else {
+            abort(401);
         }
-        return response()->json($query->find($test->id));
     }
     /**
      * Display the average of results
@@ -261,6 +284,9 @@ class TestController extends Controller
         $this->validate($request, [
             'answers.*.qid' => 'required|exists:questions,id',
         ]);
+        if(!Test::validate_permission($request, $test)){
+            abort(401);
+        }
         try {
             $recordReceived = $request->get('answers');
             $questionIds = [];
@@ -283,16 +309,18 @@ class TestController extends Controller
             }
             $score = ($correctAnswer/$size)*10;
 
-            $resultCount = Result::where('user_id', '=', $request->user()->id)
-                ->where('test_id', '=', $test->id)
-                ->count();
-            if($resultCount < 10){
-                Result::create([
-                    'n_try' => $resultCount + 1,
-                    'result' => $score,
-                    'user_id' => $request->user()->id,
-                    'test_id' => $test->id
-                ]);
+            if($request->user() != null){
+                $resultCount = Result::where('user_id', '=', $request->user()->id)
+                    ->where('test_id', '=', $test->id)
+                    ->count();
+                if($resultCount < 10){
+                    Result::create([
+                        'n_try' => $resultCount + 1,
+                        'result' => $score,
+                        'user_id' => $request->user()->id,
+                        'test_id' => $test->id
+                    ]);
+                }
             }
 
             return response()->json(['status' => 200, 'message' => 'Success', 'score' => $score]);

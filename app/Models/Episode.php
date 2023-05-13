@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Http\Request;
 use Storage;
 
 /**
@@ -74,5 +75,15 @@ class Episode extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public static function check_limits(Request $request): bool
+    {
+        $userOrg = (bool)$request->user()->organization_id;
+        if(!$userOrg){
+            $userOrg = Org_user::where('user_id', '=', $request->user()->id)->count() > 0;
+        }
+        $constantKey = $userOrg ? 'constants.limits.episode_limit_org' : 'constants.limits.episode_limit';
+        return Episode::where('user_id', '=', $request->user()->id)->count() < config($constantKey);
     }
 }

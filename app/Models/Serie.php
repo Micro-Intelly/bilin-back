@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Http\Request;
 
 /**
  * App\Models\Serie
@@ -107,5 +108,24 @@ class Serie extends Model
     public function episodes(): HasManyThrough
     {
         return $this->hasManyThrough(Episode::class, Section::class,'series_id');
+    }
+
+    public static function validate_permission(Request $request, Model $serie): bool
+    {
+        $validate = false;
+        if($serie->access == 'public' ||
+            ($serie->access == 'registered' && $request->user() != null) ||
+            ($request->user() != null && $request->user()->can('manage-series')))
+        {
+            $validate = true;
+        }
+        else if($serie->access == 'org' && $request->user() != null)
+        {
+            $userOrgs = User::organization_ids($request->user()->id);
+            if($userOrgs->contains($serie->organization_id)){
+                $validate = true;
+            }
+        }
+        return $validate;
     }
 }

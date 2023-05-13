@@ -107,12 +107,12 @@ class DatabaseSeeder extends Seeder
             );
         });
         /** @var User $orgUser */
-        $orgUser = User::factory()->withKnowEmail('org@example.es')->create();
+        $orgUser = User::factory()->withKnowEmail('org@example.es')->withKnowOrg($organizations->random())->create();
         $orgUser->assignRole($organization);
         $orgUser->organizations()->save($organizations->random());
         $orgUserList = collect();
         for($i = 0; $i < 10; $i++){
-            $orgUserAux = User::factory()->withKnowEmail('org'.$i.'@example.es')->create();
+            $orgUserAux = User::factory()->withKnowEmail('org'.$i.'@example.es')->withKnowOrg($organizations->random())->create();
             $orgUserAux->assignRole($organization);
             $orgUserList->add($orgUserAux);
         }
