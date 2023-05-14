@@ -57,6 +57,8 @@ class Episode extends Model
             if(Storage::disk('local')->exists($episodePath) && $episodeCount < 2) {
                 Storage::disk('local')->delete($episodePath);
             }
+            $episode->histories()->delete();
+            $episode->comments()->delete();
         });
     }
 
@@ -75,6 +77,10 @@ class Episode extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    public function histories(): MorphMany
+    {
+        return $this->morphMany(History::class, 'history_able');
     }
 
     public static function check_limits(Request $request): bool

@@ -34,8 +34,12 @@ class UserController extends Controller
 
     public function showCurrentUser(Request $request): JsonResponse
     {
-        $user = User::with('organizations','organization')->findOrFail($request->user()->id);
-        return UserController::getUserData($user);
+        if($request->user() != null){
+            $user = User::with('organizations','organization')->findOrFail($request->user()->id);
+            return UserController::getUserData($user);
+        } else {
+            abort(401,'No user is logged');
+        }
     }
 
     public function getLimits(Request $request): JsonResponse
@@ -178,11 +182,11 @@ class UserController extends Controller
             $request->user()->id === $user->id))
         {
             try {
+                $user->delete();
+
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-
-                $user->delete();
                 return response()->json(['status' => 200, 'message' => 'Success']);
             } catch (Exception $exception) {
                 return response()->json(['status' => 400, 'message' => $exception->getMessage()]);

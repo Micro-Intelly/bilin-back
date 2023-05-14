@@ -72,4 +72,14 @@ class Post extends Model
     {
         return $this->morphToMany(Tag::class, 'taggable');
     }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($post) {
+            Taggable::where('taggable_id', $post->id)->delete();
+            $post->comments()->delete();
+            $post->histories()->delete();
+        });
+    }
 }

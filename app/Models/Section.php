@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Storage;
 
 /**
  * App\Models\Section
@@ -38,6 +39,14 @@ class Section extends Model
         'description',
         'series_id',
     ];
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($section) {
+            $section->episodes()->delete();
+        });
+    }
 
     public function episodes(): HasMany
     {

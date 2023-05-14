@@ -92,13 +92,19 @@ class Test extends Model
     {
         return $this->belongsTo(Organization::class)->orderBy('name');
     }
+    public function histories(): MorphMany
+    {
+        return $this->morphMany(History::class, 'history_able');
+    }
 
     public static function validate_permission(Request $request, Test $test): bool
     {
         $validate = false;
         if($test->access == 'public' ||
             ($test->access == 'registered' && $request->user() != null) ||
-            ($request->user() != null && $request->user()->can('manage-test')))
+            ($request->user() != null && $request->user()->can('manage-test')) ||
+            ($request->user() != null && $request->user()->id == $test->user_id)
+        )
         {
             $validate = true;
         }
@@ -120,5 +126,17 @@ class Test extends Model
         }
         $constantKey = $userOrg ? 'constants.limits.test_limit_org' : 'constants.limits.test_limit';
         return Test::where('user_id', '=', $request->user()->id)->count() < config($constantKey);
+    }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($test) {
+            Taggable::where('taggable_id', $test->id)->delete();
+            $test->results()->delete();
+            $test->comments()->delete();
+            $test->histories()->delete();
+            $test->questions()->delete();
+        });
     }
 }

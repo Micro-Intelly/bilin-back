@@ -75,4 +75,13 @@ class Comment extends Model
     {
         return $this->belongsTo(Comment::class, 'in_reply_to_id');
     }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($comment) {
+            Comment::where('in_reply_to_id', $comment->id)->update(['in_reply_to_id' => null]);
+            $comment->comments()->delete();
+        });
+    }
 }

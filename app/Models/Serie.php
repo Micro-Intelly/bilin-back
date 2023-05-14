@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Http\Request;
+use Storage;
 
 /**
  * App\Models\Serie
@@ -89,6 +90,10 @@ class Serie extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+    public function episode_comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'serie_id');
+    }
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class, 'language_id');
@@ -109,13 +114,19 @@ class Serie extends Model
     {
         return $this->hasManyThrough(Episode::class, Section::class,'series_id');
     }
+    public function histories(): HasMany
+    {
+        return $this->hasMany(History::class, 'serie_id');
+    }
 
     public static function validate_permission(Request $request, Model $serie): bool
     {
         $validate = false;
         if($serie->access == 'public' ||
             ($serie->access == 'registered' && $request->user() != null) ||
-            ($request->user() != null && $request->user()->can('manage-series')))
+            ($request->user() != null && $request->user()->can('manage-series')) ||
+            ($request->user() != null && $request->user()->id == $serie->author_id)
+        )
         {
             $validate = true;
         }
@@ -127,5 +138,25 @@ class Serie extends Model
             }
         }
         return $validate;
+    }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($serie) {
+            Taggable::where('taggable_id', $serie->id)->delete();
+            $serie->sections()->delete();
+            $serie->tests()->delete();
+            $serie->comments()->delete();
+            $serie->episode_comments()->delete();
+            $serie->histories()->delete();
+            $serie->files()->delete();
+            $imageCount = Serie::where('image','=', $serie->image)->count();
+            $imagePath = substr($serie->image, 8);
+            $imagePath = 'public/'.$imagePath;
+            if(Storage::disk('local')->exists($imagePath) && $imageCount < 2) {
+                Storage::disk('local')->delete($imagePath);
+            }
+        });
     }
 }

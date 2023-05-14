@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Storage;
 
 /**
  * App\Models\User
@@ -86,6 +87,37 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($user) {
+            Org_user::where('user_id',$user->id)->delete();
+            $user->results()->delete();
+        });
+
+        self::deleted(function($user) {
+            if($user->organization_id != null){
+                $orgCount = User::where('organization_id','=', $user->organization_id)->count();
+                if($orgCount < 1) {
+                    Org_user::where('organization_id',$user->organization_id)->delete();
+                    Serie::where('organization_id',$user->organization_id)->update([
+                        'access'=>'registered', 'organization_id'=>null
+                    ]);
+                    Test::where('organization_id',$user->organization_id)->update([
+                        'access'=>'registered', 'organization_id'=>null
+                    ]);
+                    $user->organization()->delete();
+                }
+            }
+            $imageCount = User::where('thumbnail','=', $user->thumbnail)->count();
+            $imagePath = substr($user->thumbnail, 8);
+            $imagePath = 'public/'.$imagePath;
+            if(Storage::disk('local')->exists($imagePath) && $imageCount < 2) {
+                Storage::disk('local')->delete($imagePath);
+            }
+        });
+    }
+
     public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class, 'org_users');
@@ -97,6 +129,10 @@ class User extends Authenticatable
     public function posts(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+    public function results(): HasMany
+    {
+        return $this->hasMany(Result::class);
     }
 
     public static function organization_ids(string $id): \Illuminate\Support\Collection
