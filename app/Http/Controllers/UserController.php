@@ -32,7 +32,7 @@ class UserController extends Controller
             User::with('organization')->orderBy('email')->get());
     }
 
-    public function showCurrentUser(Request $request): JsonResponse
+    public function show_current_user(Request $request): JsonResponse
     {
         if($request->user() != null){
             $user = User::with('organizations','organization')->findOrFail($request->user()->id);
@@ -42,7 +42,7 @@ class UserController extends Controller
         }
     }
 
-    public function getLimits(Request $request): JsonResponse
+    public function get_limits(Request $request): JsonResponse
     {
         return response()->json(config('constants.limits'));
     }
@@ -152,7 +152,7 @@ class UserController extends Controller
         }
     }
 
-    public function updateThumbnail(Request $request, User $user):JsonResponse
+    public function update_thumbnail(Request $request, User $user):JsonResponse
     {
         if($request->user() != null &&
             ($request->user()->can('manage-user') ||

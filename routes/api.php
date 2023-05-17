@@ -33,8 +33,8 @@ use App\Http\Controllers\Auth\LoginController;
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/signup', [RegisterController::class, 'signup'])->name('signup');
-Route::get('/isLoggedIn', [LoginController::class,'isLoggedIn'])->name('user.check');
-Route::get('/user/limits', [UserController::class,'getLimits'])->name('user.getLimits');
+Route::get('/isLoggedIn', [LoginController::class, 'is_logged_in'])->name('user.check');
+Route::get('/user/limits', [UserController::class, 'get_limits'])->name('user.getLimits');
 Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
 
 Route::get('/stream/{episode}', [EpisodeController::class, 'stream'])->name('episode.stream');
@@ -47,8 +47,8 @@ Route::get('/posts/{post}', [PostController::class, 'show'])->name('post.show');
 Route::get('/tests', [TestController::class, 'index'])->name('test.index');
 Route::get('/tests/{test}', [TestController::class, 'show'])->name('test.show');
 Route::get('/tests/{test}/questions', [QuestionController::class, 'index'])->name('question.index');
-Route::get('/tests/{test}/results', [TestController::class, 'showResultAverage'])->name('test.showResultAverage');
-Route::post('/tests/{test}/answers', [TestController::class, 'postAnswer'])->name('test.postAnswer');
+Route::get('/tests/{test}/results', [TestController::class, 'show_result_average'])->name('test.showResultAverage');
+Route::post('/tests/{test}/answers', [TestController::class, 'post_answer'])->name('test.postAnswer');
 
 Route::get('/tags', [TagController::class, 'index'])->name('tag.index');
 Route::get('/languages', [LanguageController::class, 'index'])->name('language.index');
@@ -57,9 +57,9 @@ Route::get('/comments/{id}', [CommentController::class, 'index'])->name('comment
 Route::get('/files/{file}', [FileController::class, 'show'])->name('files.show');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::get('/user/currentUser', [UserController::class,'showCurrentUser'])->name('user.showCurrentUser');
+    Route::get('/user/currentUser', [UserController::class, 'show_current_user'])->name('user.showCurrentUser');
     Route::patch('/user/{user}', [UserController::class,'update'])->name('user.update');
-    Route::post('/user/{user}/thumbnail', [UserController::class,'updateThumbnail'])->name('user.updateThumbnail');
+    Route::post('/user/{user}/thumbnail', [UserController::class, 'update_thumbnail'])->name('user.updateThumbnail');
     Route::delete('/user/{user}', [UserController::class,'destroy'])->name('user.destroy');
 
     Route::post('/posts', [PostController::class, 'store'])->name('post.store');
@@ -87,7 +87,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/series/{serie}', [SerieController::class, 'update'])->name('series.update');
         Route::delete('/series/{serie}', [SerieController::class, 'destroy'])->name('series.destroy');
 
-        Route::post('/series/{serie}/thumbnail', [SerieController::class,'updateThumbnail'])->name('series.updateThumbnail');
+        Route::post('/series/{serie}/thumbnail', [SerieController::class, 'update_thumbnail'])->name('series.updateThumbnail');
         Route::post('/series/{serie}/files', [FileController::class,'store'])->name('file.store');
         Route::delete('/series/{serie}/files/{file}', [FileController::class,'destroy'])->name('file.destroy');
 
@@ -103,7 +103,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/tests/{test}', [TestController::class, 'update'])->name('test.update');
         Route::delete('/tests/{test}', [TestController::class, 'destroy'])->name('test.destroy');
 
-        Route::post('/tests/{test}/questions', [TestController::class, 'updateQuestions'])->name('test.updateQuestions');
+        Route::post('/tests/{test}/questions', [TestController::class, 'update_questions'])->name('test.updateQuestions');
+
+        Route::middleware('throttle:600,1')->post('/file/upload', [FileController::class, 'uploadFile'])->name('file.upload');
+        Route::post('/file/cancel/{uniqueId}', [FileController::class, 'cancel_file'])->name('file.cancel');
+        Route::post('/file/delete', [FileController::class, 'delete_file'])->name('file.delete');
     });
 
     Route::group(['middleware' => ['role:Admin|Organization|Manager']], function() {

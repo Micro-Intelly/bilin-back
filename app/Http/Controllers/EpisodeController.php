@@ -26,21 +26,19 @@ class EpisodeController extends Controller
         $this->validate($request, [
             'title' => 'required|max:100',
             'description' => 'max:500|nullable',
-            'file' => 'required|mimes:mp4,mp3|max:204800'
+            'path' => 'required'
         ]);
         if($request->user() != null &&
             ($request->user()->can('manage-series') ||
             $request->user()->id === $serie->author_id))
         {
             if(Episode::check_limits($request)){
-                $type = $request->file('file')->getMimeType() == 'video/mp4' ? 'video' : 'podcast';
-                $file_path = $request->file('file')->store($type.'s', 'local');
                 $data = [
                     'title' => $request->get('title'),
                     'description' => $request->get('description'),
                     'serie_id' => $serie->id,
-                    'path' => '/app/'.$file_path,
-                    'type' => $type,
+                    'path' => '/app/'.$request->get('path'),
+                    'type' => $serie->type,
                     'user_id' => $request->user()->id,
                     'section_id' => $section->id
                 ];

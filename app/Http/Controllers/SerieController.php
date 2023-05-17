@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Serie;
 use App\Http\Requests\StoreSerieRequest;
 use App\Http\Requests\UpdateSerieRequest;
-use App\Models\Test;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -30,7 +29,8 @@ class SerieController extends Controller
             $series = $series->whereIn('access',['public','registered'])
                 ->orWhere(function ($q) use ($userOrgs){
                     $q->where('access', 'org')->whereIn('organization_id', $userOrgs);
-                });
+                })
+                ->orWhere('author_id', $request->user()->id);
         }
         return response()->json($series->get());
     }
@@ -138,7 +138,7 @@ class SerieController extends Controller
         }
     }
 
-    public function updateThumbnail(Request $request, Serie $serie):JsonResponse
+    public function update_thumbnail(Request $request, Serie $serie):JsonResponse
     {
         if($request->user() != null &&
             ($request->user()->can('manage-series') ||

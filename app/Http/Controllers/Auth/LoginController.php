@@ -66,7 +66,7 @@ class LoginController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function isLoggedIn(Request $request): JsonResponse
+    public function is_logged_in(Request $request): JsonResponse
     {
         $checkAuth = $request->user() != null;
         $res = response()->json(null);

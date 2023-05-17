@@ -41,7 +41,8 @@ class TestController extends Controller
             $test = $test->whereIn('access',['public','registered'])
                 ->orWhere(function ($q) use ($userOrgs){
                     $q->where('access', 'org')->whereIn('organization_id', $userOrgs);
-                });
+                })
+                ->orWhere('user_id', $request->user()->id);
         }
         return response()->json($test->get());
     }
@@ -130,7 +131,7 @@ class TestController extends Controller
      * @param  \App\Models\Test  $test
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showResultAverage(Test $test)
+    public function show_result_average(Test $test): JsonResponse
     {
         return response()->json(Result::selectRaw('n_try,AVG(result) as avg_result')
             ->where('test_id','=',$test->id)
@@ -207,7 +208,7 @@ class TestController extends Controller
      * @param  \App\Models\Test  $test
      * @return \Illuminate\Http\Response
      */
-    public function updateQuestions(UpdateTestRequest $request, Test $test): JsonResponse
+    public function update_questions(UpdateTestRequest $request, Test $test): JsonResponse
     {
         if($request->user() != null &&
             ($request->user()->can('manage-test') ||
@@ -279,7 +280,7 @@ class TestController extends Controller
      * @param  \App\Models\Test  $test
      * @return \Illuminate\Http\Response
      */
-    public function postAnswer(Request $request, Test $test): JsonResponse
+    public function post_answer(Request $request, Test $test): JsonResponse
     {
         $this->validate($request, [
             'answers.*.qid' => 'required|exists:questions,id',
