@@ -32,23 +32,35 @@ class UserController extends Controller
             User::with('organization')->orderBy('email')->get());
     }
 
+    /**
+     * Get current user data.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show_current_user(Request $request): JsonResponse
     {
         if($request->user() != null){
             $user = User::with('organizations','organization')->findOrFail($request->user()->id);
-            return UserController::getUserData($user);
+            return UserController::get_user_data($user);
         } else {
             abort(401,'No user is logged');
         }
     }
 
+    /**
+     * Get application limits.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function get_limits(Request $request): JsonResponse
     {
         return response()->json(config('constants.limits'));
     }
 
     /**
-     * Display a listing of the resource.
+     * Display user series.
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -62,7 +74,7 @@ class UserController extends Controller
                 ->get());
     }
     /**
-     * Display a listing of the resource.
+     * Display user organizations.
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -78,7 +90,7 @@ class UserController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Display user posts.
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -91,7 +103,7 @@ class UserController extends Controller
                 ->get());
     }
     /**
-     * Display a listing of the resource.
+     * Display user tests.
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -104,7 +116,7 @@ class UserController extends Controller
                 ->get());
     }
     /**
-     * Display a listing of the resource.
+     * Display user comments.
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -117,6 +129,13 @@ class UserController extends Controller
                 ->get());
     }
 
+    /**
+     * Update user data
+     *
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
     public function update(Request $request, User $user):JsonResponse
     {
         if($request->user() != null &&
@@ -152,6 +171,13 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Update user thumbnail
+     *
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
     public function update_thumbnail(Request $request, User $user):JsonResponse
     {
         if($request->user() != null &&
@@ -175,6 +201,13 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Delete user
+     *
+     * @param Request $request
+     * @param User $user
+     * @return JsonResponse
+     */
     public function destroy(Request $request, User $user):JsonResponse
     {
         if($request->user() != null &&
@@ -197,10 +230,12 @@ class UserController extends Controller
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Builder|array|null $user
+     * Get user data with its relations
+     *
+     * @param User $user
      * @return JsonResponse
      */
-    public static function getUserData(User $user): JsonResponse
+    public static function get_user_data(User $user): JsonResponse
     {
         $res = $user->toArray() + [
                 'role' => $user->getRoleNames()->join(','),

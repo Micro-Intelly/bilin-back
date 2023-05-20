@@ -16,6 +16,7 @@ class QuestionController extends Controller
      * Display a listing of the resource.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param string $test
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request, string $test): JsonResponse

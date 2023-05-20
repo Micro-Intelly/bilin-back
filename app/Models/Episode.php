@@ -33,6 +33,21 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|Episode whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Episode wherePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Episode whereSectionId($value)
+ * @property string $title
+ * @property string $type
+ * @property string $user_id
+ * @property string $serie_id
+ * @property-read \App\Models\User $author
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Comment[] $comments
+ * @property-read int|null $comments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\History[] $histories
+ * @property-read int|null $histories_count
+ * @property-read \App\Models\Section $section
+ * @property-read \App\Models\Serie $serie
+ * @method static \Illuminate\Database\Eloquent\Builder|Episode whereSerieId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Episode whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Episode whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Episode whereUserId($value)
  */
 class Episode extends Model
 {

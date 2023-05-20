@@ -13,20 +13,12 @@ use Illuminate\Http\Request;
 class SectionController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreSectionRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\StoreSectionRequest $request
+     * @param Serie $serie
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreSectionRequest $request, Serie $serie): JsonResponse
     {
@@ -60,9 +52,11 @@ class SectionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateSectionRequest  $request
-     * @param  \App\Models\Section  $section
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\UpdateSectionRequest $request
+     * @param Serie $serie
+     * @param \App\Models\Section $section
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(UpdateSectionRequest $request, Serie $serie, Section $section): JsonResponse
     {
@@ -95,8 +89,10 @@ class SectionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Section  $section
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Serie $serie
+     * @param \App\Models\Section $section
+     * @return JsonResponse
      */
     public function destroy(Request $request, Serie $serie, Section $section): JsonResponse
     {

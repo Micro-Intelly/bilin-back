@@ -23,6 +23,14 @@ class TagController extends Controller
         return response()->json(Tag::orderBy('name')->get());
     }
 
+    /**
+     * Help method to manage resource tags.
+     *
+     * @param Request $request
+     * @param string $id
+     * @param string $class
+     * @return void
+     */
     public static function tagControl(Request $request, string $id, string $class): void
     {
         $tags = $request->get('tags_id');

@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereCorrectAnswer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereQuestion($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereTestId($value)
+ * @property-read \App\Models\Test $test
  */
 class Question extends Model
 {

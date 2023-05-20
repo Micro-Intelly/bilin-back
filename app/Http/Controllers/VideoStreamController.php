@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use JetBrains\PhpStorm\NoReturn;
 
 /**
  * Description of VideoStream
@@ -91,7 +92,7 @@ class VideoStreamController extends Controller
     /**
      * close curretly opened stream
      */
-    private function end()
+    #[NoReturn] private function end()
     {
         fclose($this->stream);
         exit;

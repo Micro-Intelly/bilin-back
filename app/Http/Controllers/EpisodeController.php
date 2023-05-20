@@ -11,6 +11,7 @@ use App\Models\Serie;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use JetBrains\PhpStorm\NoReturn;
 
 class EpisodeController extends Controller
 {
@@ -18,8 +19,11 @@ class EpisodeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreEpisodeRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\StoreEpisodeRequest $request
+     * @param Serie $serie
+     * @param Section $section
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreEpisodeRequest $request, Serie $serie, Section $section): JsonResponse
     {
@@ -55,9 +59,12 @@ class EpisodeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateEpisodeRequest  $request
-     * @param  \App\Models\Episode  $episode
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\UpdateEpisodeRequest $request
+     * @param Serie $serie
+     * @param Section $section
+     * @param \App\Models\Episode $episode
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(UpdateEpisodeRequest $request, Serie $serie, Section $section, Episode $episode): JsonResponse
     {
@@ -85,8 +92,11 @@ class EpisodeController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Episode  $episode
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Serie $serie
+     * @param Section $section
+     * @param \App\Models\Episode $episode
+     * @return JsonResponse
      */
     public function destroy(Request $request, Serie $serie,Section $section,Episode $episode): JsonResponse
     {
@@ -110,9 +120,9 @@ class EpisodeController extends Controller
      * Return streaming media source.
      *
      * @param  \App\Models\Episode  $episode
-     * @return \Illuminate\Http\Response
+     * @return void
      */
-    public function stream(Episode $episode)
+    #[NoReturn] #[NoReturn] public function stream(Episode $episode)
     {
         $stream = new VideoStreamController(storage_path() . $episode->path);
         $stream->start();exit;

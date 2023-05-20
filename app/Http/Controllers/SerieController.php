@@ -38,8 +38,9 @@ class SerieController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreSerieRequest  $request
+     * @param \App\Http\Requests\StoreSerieRequest $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreSerieRequest $request): JsonResponse
     {
@@ -75,7 +76,8 @@ class SerieController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Serie  $serie
+     * @param Request $request
+     * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Request $request, string $id): JsonResponse
@@ -96,9 +98,10 @@ class SerieController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateSerieRequest  $request
-     * @param  \App\Models\Serie  $serie
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\UpdateSerieRequest $request
+     * @param \App\Models\Serie $serie
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(UpdateSerieRequest $request, Serie $serie):JsonResponse
     {
@@ -138,6 +141,13 @@ class SerieController extends Controller
         }
     }
 
+    /**
+     * Update serie image.
+     *
+     * @param \App\Http\Requests\UpdateSerieRequest $request
+     * @param \App\Models\Serie $serie
+     * @return JsonResponse
+     */
     public function update_thumbnail(Request $request, Serie $serie):JsonResponse
     {
         if($request->user() != null &&
@@ -164,8 +174,9 @@ class SerieController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Serie  $serie
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param \App\Models\Serie $serie
+     * @return JsonResponse
      */
     public function destroy(Request $request, Serie $serie): JsonResponse
     {

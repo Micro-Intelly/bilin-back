@@ -19,6 +19,8 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
+     * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request, string $id): JsonResponse
@@ -38,7 +40,9 @@ class CommentController extends Controller
     /**
      * Store the image posted on note.
      *
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function image_store(Request $request): JsonResponse
     {
@@ -53,8 +57,10 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreCommentRequest  $request
+     * @param \App\Http\Requests\StoreCommentRequest $request
+     * @param string $type
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreCommentRequest $request, string $type): JsonResponse
     {
@@ -108,7 +114,7 @@ class CommentController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateCommentRequest  $request
-     * @param  \App\Models\Comment  $comment
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateCommentRequest $request, string $id):JsonResponse
@@ -158,7 +164,8 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Comment  $comment
+     * @param Request $request
+     * @param  string $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, string $id):JsonResponse

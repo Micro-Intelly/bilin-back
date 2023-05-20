@@ -42,7 +42,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
-        return UserController::getUserData($request->user());
+        return UserController::get_user_data($request->user());
     }
 
     /**
@@ -72,7 +72,7 @@ class LoginController extends Controller
         $res = response()->json(null);
         if($checkAuth){
             $user = User::with('organizations','organization')->findOrFail($request->user()->id);
-            $res = UserController::getUserData($user);
+            $res = UserController::get_user_data($user);
         }
         return $res;
     }

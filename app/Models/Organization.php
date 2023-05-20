@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @method static \Illuminate\Database\Eloquent\Builder|Organization whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Organization whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Organization whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @property-read int|null $users_count
  */
 class Organization extends Model
 {

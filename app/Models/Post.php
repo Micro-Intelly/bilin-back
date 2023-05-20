@@ -38,6 +38,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Post whereBody($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Post whereLanguageId($value)
+ * @property-read \App\Models\User $author
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\History[] $histories
+ * @property-read int|null $histories_count
  */
 class Post extends Model
 {

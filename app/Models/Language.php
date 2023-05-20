@@ -31,6 +31,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Language whereHomeImg($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Language whereHomeImgMini($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Language whereHomePhrase($value)
+ * @property string $home_img_mini
+ * @property string $home_img
+ * @property string $home_phrase
  */
 class Language extends Model
 {

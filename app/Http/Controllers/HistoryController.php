@@ -17,15 +17,6 @@ class HistoryController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-    /**
-     * Display a listing of the resource.
-     *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
      */
@@ -39,7 +30,7 @@ class HistoryController extends Controller
                 ->get());
     }
     /**
-     * Display a listing of the resource.
+     * Display user posts
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -54,7 +45,7 @@ class HistoryController extends Controller
                 ->get());
     }
     /**
-     * Display a listing of the resource.
+     * Display user tests
      *
      * @param  string  $user
      * @return \Illuminate\Http\JsonResponse
@@ -70,20 +61,11 @@ class HistoryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreHistoryRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\StoreHistoryRequest $request
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreHistoryRequest $request): JsonResponse
     {
@@ -134,50 +116,5 @@ class HistoryController extends Controller
         } catch (Exception $exception) {
             return response()->json(['status' => 400, 'message' => $exception->getMessage()]);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\History  $history
-     * @return \Illuminate\Http\Response
-     */
-    public function show(History $history)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\History  $history
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(History $history)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateHistoryRequest  $request
-     * @param  \App\Models\History  $history
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateHistoryRequest $request, History $history)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\History  $history
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(History $history)
-    {
-        //
     }
 }

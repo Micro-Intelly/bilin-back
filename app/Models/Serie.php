@@ -57,6 +57,14 @@ use Storage;
  * @property-read int|null $episodes_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Section[] $sections
  * @property-read int|null $sections_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Comment[] $episode_comments
+ * @property-read int|null $episode_comments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\File[] $files
+ * @property-read int|null $files_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\History[] $histories
+ * @property-read int|null $histories_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Test[] $tests
+ * @property-read int|null $tests_count
  */
 class Serie extends Model
 {

@@ -44,6 +44,23 @@ use Illuminate\Http\Request;
  * @method static \Illuminate\Database\Eloquent\Builder|Test whereUpdatedAt($value)
  * @property string $user_id
  * @method static \Illuminate\Database\Eloquent\Builder|Test whereUserId($value)
+ * @property string $title
+ * @property string $access
+ * @property string $level
+ * @property string|null $organization_id
+ * @property-read \App\Models\User $author
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\History[] $histories
+ * @property-read int|null $histories_count
+ * @property-read \App\Models\Organization|null $organization
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Question[] $questions
+ * @property-read int|null $questions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Result[] $results
+ * @property-read int|null $results_count
+ * @property-read \App\Models\Serie|null $serie
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereAccess($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereLevel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereOrganizationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereTitle($value)
  */
 class Test extends Model
 {

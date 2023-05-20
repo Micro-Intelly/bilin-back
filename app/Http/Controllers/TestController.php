@@ -22,6 +22,7 @@ class TestController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request): JsonResponse
@@ -50,8 +51,9 @@ class TestController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreTestRequest  $request
+     * @param \App\Http\Requests\StoreTestRequest $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreTestRequest $request): JsonResponse
     {
@@ -106,7 +108,8 @@ class TestController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Test  $test
+     * @param Request $request
+     * @param \App\Models\Test $test
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Request $request,Test $test)
@@ -126,7 +129,7 @@ class TestController extends Controller
         }
     }
     /**
-     * Display the average of results
+     * Get result averages of the test
      *
      * @param  \App\Models\Test  $test
      * @return \Illuminate\Http\JsonResponse
@@ -143,9 +146,10 @@ class TestController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateTestRequest  $request
-     * @param  \App\Models\Test  $test
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\UpdateTestRequest $request
+     * @param \App\Models\Test $test
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(UpdateTestRequest $request, Test $test): JsonResponse
     {
@@ -202,11 +206,12 @@ class TestController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update test questions.
      *
-     * @param  \App\Http\Requests\UpdateTestRequest  $request
-     * @param  \App\Models\Test  $test
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\UpdateTestRequest $request
+     * @param \App\Models\Test $test
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function update_questions(UpdateTestRequest $request, Test $test): JsonResponse
     {
@@ -275,10 +280,12 @@ class TestController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Get answers and save the result.
      *
-     * @param  \App\Models\Test  $test
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param \App\Models\Test $test
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function post_answer(Request $request, Test $test): JsonResponse
     {
@@ -333,7 +340,8 @@ class TestController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Test  $test
+     * @param Request $request
+     * @param \App\Models\Test $test
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, Test $test):JsonResponse

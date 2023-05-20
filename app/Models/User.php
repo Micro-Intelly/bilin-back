@@ -53,6 +53,9 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereOrganizationId($value)
  * @property string $thumbnail
  * @method static \Illuminate\Database\Eloquent\Builder|User whereThumbnail($value)
+ * @property-read \App\Models\Organization|null $organization
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Result[] $results
+ * @property-read int|null $results_count
  */
 class User extends Authenticatable
 {

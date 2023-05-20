@@ -18,21 +18,14 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FileController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreFileRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param \App\Http\Requests\StoreFileRequest $request
+     * @param Serie $serie
+     * @return JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(StoreFileRequest $request, Serie $serie): JsonResponse
     {
@@ -70,22 +63,12 @@ class FileController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateFileRequest  $request
-     * @param  \App\Models\File  $file
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateFileRequest $request, File $file)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\File  $file
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Serie $serie
+     * @param \App\Models\File $file
+     * @return JsonResponse
      */
     public function destroy(Request $request, Serie $serie, File $file): JsonResponse
     {
@@ -110,11 +93,8 @@ class FileController extends Controller
      * Handles the file upload
      *
      * @param FileReceiver $receiver
-     *
      * @return \Illuminate\Http\JsonResponse
-     *
      * @throws UploadMissingFileException
-     *
      */
     public function uploadFile(FileReceiver $receiver): JsonResponse
     {
@@ -142,7 +122,6 @@ class FileController extends Controller
      * Saves the file
      *
      * @param UploadedFile $file
-     *
      * @return \Illuminate\Http\JsonResponse
      */
     protected function saveFile(UploadedFile $file): JsonResponse
@@ -179,8 +158,8 @@ class FileController extends Controller
     /**
      * Delete chunks when cancel upload
      *
-     * @param UploadedFile $file
-     *
+     * @param Request $request
+     * @param string $uniqueId
      * @return \Illuminate\Http\JsonResponse
      */
     protected function cancel_file(Request $request, string $uniqueId): JsonResponse
@@ -193,12 +172,13 @@ class FileController extends Controller
         }
 
     }
+
     /**
-     * Delete chunks when cancel upload
+     * Delete file when delete uploaded file
      *
-     * @param UploadedFile $file
-     *
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     protected function delete_file(Request $request): JsonResponse
     {

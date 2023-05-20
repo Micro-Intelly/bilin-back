@@ -29,6 +29,9 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|Section whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Section whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Section whereSeriesId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Episode[] $episodes
+ * @property-read int|null $episodes_count
+ * @property-read \App\Models\Serie $serie
  */
 class Section extends Model
 {
