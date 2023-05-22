@@ -3,6 +3,7 @@
 ## Billing Backend Application
 
 This is backend part of application Billing, build only for educational purpose.
+
 Build with:
 - Laravel: 9.31.0
 
@@ -12,3 +13,4 @@ Packages:
 - pion/laravel-chunk-upload
 - mews/purifier
 - laravel/sanctum
+- barryvdh/laravel-ide-helper

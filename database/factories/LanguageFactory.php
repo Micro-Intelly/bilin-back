@@ -47,4 +47,26 @@ class LanguageFactory extends Factory
             'home_phrase' => $phrase,
         ]);
     }
+    /**
+     * Method to create language with specific home image mini
+     * @param string $path
+     * @return LanguageFactory
+     */
+    public function withImageMini(string $path): LanguageFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'home_img_mini' => $path,
+        ]);
+    }
+    /**
+     * Method to create language with specific home image
+     * @param string $path
+     * @return LanguageFactory
+     */
+    public function withImage(string $path): LanguageFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'home_img' => $path,
+        ]);
+    }
 }
