@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use phpDocumentor\Reflection\Types\Boolean;
+use Illuminate\Http\Request;
 
 /**
  * App\Models\Test
@@ -42,10 +44,38 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Test whereUpdatedAt($value)
  * @property string $user_id
  * @method static \Illuminate\Database\Eloquent\Builder|Test whereUserId($value)
+ * @property string $title
+ * @property string $access
+ * @property string $level
+ * @property string|null $organization_id
+ * @property-read \App\Models\User $author
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\History[] $histories
+ * @property-read int|null $histories_count
+ * @property-read \App\Models\Organization|null $organization
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Question[] $questions
+ * @property-read int|null $questions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Result[] $results
+ * @property-read int|null $results_count
+ * @property-read \App\Models\Serie|null $serie
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereAccess($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereLevel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereOrganizationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Test whereTitle($value)
  */
 class Test extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'title',
+        'description',
+        'series_id',
+        'access',
+        'level',
+        'organization_id',
+        'user_id',
+        'language_id',
+    ];
 
     public function comments(): MorphMany
     {
@@ -74,5 +104,56 @@ class Test extends Model
     public function results(): HasMany
     {
         return $this->HasMany(Result::class)->orderBy('n_try');
+    }
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class)->orderBy('name');
+    }
+    public function histories(): MorphMany
+    {
+        return $this->morphMany(History::class, 'history_able');
+    }
+
+    public static function validate_permission(Request $request, Test $test): bool
+    {
+        $validate = false;
+        if($test->access == 'public' ||
+            ($test->access == 'registered' && $request->user() != null) ||
+            ($request->user() != null && $request->user()->can('manage-test')) ||
+            ($request->user() != null && $request->user()->id == $test->user_id)
+        )
+        {
+            $validate = true;
+        }
+        else if($test->access == 'org' && $request->user() != null)
+        {
+            $userOrgs = User::organization_ids($request->user()->id);
+            if($userOrgs->contains($test->organization_id)){
+                $validate = true;
+            }
+        }
+        return $validate;
+    }
+
+    public static function check_limits(Request $request): bool
+    {
+        $userOrg = (bool)$request->user()->organization_id;
+        if(!$userOrg){
+            $userOrg = Org_user::where('user_id', '=', $request->user()->id)->count() > 0;
+        }
+        $constantKey = $userOrg ? 'constants.limits.test_limit_org' : 'constants.limits.test_limit';
+        return Test::where('user_id', '=', $request->user()->id)->count() < config($constantKey);
+    }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($test) {
+            Taggable::where('taggable_id', $test->id)->delete();
+            $test->results()->delete();
+            $test->comments()->delete();
+            $test->histories()->delete();
+            $test->questions()->delete();
+        });
     }
 }

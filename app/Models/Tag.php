@@ -33,6 +33,10 @@ class Tag extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'name'
+    ];
+
     /**
      * Get all of the posts that are assigned this tag.
      */

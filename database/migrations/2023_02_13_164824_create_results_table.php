@@ -20,8 +20,8 @@ return new class extends Migration
 
             $table->uuid('user_id');
             $table->uuid('test_id');
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('test_id')->references('id')->on('tests');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('test_id')->references('id')->on('tests')->cascadeOnDelete();
 
             $table->timestamps();
         });

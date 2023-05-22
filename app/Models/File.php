@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Storage;
 
 /**
  * App\Models\File
@@ -33,5 +34,22 @@ class File extends Model
 {
     use HasFactory, UuidTrait;
 
+    protected $fillable = [
+        'name',
+        'description',
+        'series_id',
+        'path'
+    ];
 
+    public static function boot() {
+        parent::boot();
+
+        self::deleting(function($file) {
+            $fileCount = File::where('path','=', $file->path)->count();
+            $filePath = substr($file->path, 5);
+            if(Storage::disk('local')->exists($filePath) && $fileCount < 2) {
+                Storage::disk('local')->delete($filePath);
+            }
+        });
+    }
 }

@@ -28,10 +28,22 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static \Illuminate\Database\Eloquent\Builder|History whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|History whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|History whereUserId($value)
+ * @property string|null $serie_id
+ * @property-read \App\Models\User $author
+ * @property-read Model|\Eloquent $history_able
+ * @property-read \App\Models\Serie|null $serie
+ * @method static \Illuminate\Database\Eloquent\Builder|History whereSerieId($value)
  */
 class History extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'user_id',
+        'serie_id',
+        'history_able_type',
+        'history_able_id'
+    ];
 
     public function history_able(): MorphTo
     {

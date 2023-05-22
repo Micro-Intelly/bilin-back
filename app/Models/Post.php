@@ -38,12 +38,22 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|Post whereBody($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Post whereLanguageId($value)
+ * @property-read \App\Models\User $author
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\History[] $histories
+ * @property-read int|null $histories_count
  */
 class Post extends Model
 {
     use HasFactory, UuidTrait;
 
     public $incrementing = false;
+
+    protected $fillable = [
+        'title',
+        'body',
+        'user_id',
+        'language_id',
+    ];
 
     public function author(): BelongsTo
     {
@@ -53,6 +63,10 @@ class Post extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+    public function histories(): MorphMany
+    {
+        return $this->morphMany(History::class, 'history_able');
+    }
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class,'language_id');
@@ -60,5 +74,15 @@ class Post extends Model
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($post) {
+            Taggable::where('taggable_id', $post->id)->delete();
+            $post->comments()->delete();
+            $post->histories()->delete();
+        });
     }
 }

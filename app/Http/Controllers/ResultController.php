@@ -11,7 +11,7 @@ class ResultController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function index()
     {
@@ -21,7 +21,7 @@ class ResultController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function create()
     {
@@ -32,7 +32,7 @@ class ResultController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreResultRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function store(StoreResultRequest $request)
     {
@@ -43,7 +43,7 @@ class ResultController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Models\Result  $result
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function show(Result $result)
     {
@@ -54,7 +54,7 @@ class ResultController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\Models\Result  $result
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function edit(Result $result)
     {
@@ -66,7 +66,7 @@ class ResultController extends Controller
      *
      * @param  \App\Http\Requests\UpdateResultRequest  $request
      * @param  \App\Models\Result  $result
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function update(UpdateResultRequest $request, Result $result)
     {
@@ -77,7 +77,7 @@ class ResultController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Result  $result
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function destroy(Result $result)
     {

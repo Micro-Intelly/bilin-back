@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\UserController;
+use App\Models\Episode;
+use App\Models\Org_user;
+use App\Models\Organization;
 use App\Models\Serie;
+use App\Models\Test;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +42,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
-        return response()->json($request->user());
+        return UserController::get_user_data($request->user());
     }
 
     /**
@@ -61,13 +66,14 @@ class LoginController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function isLoggedIn(Request $request): JsonResponse
+    public function is_logged_in(Request $request): JsonResponse
     {
         $checkAuth = $request->user() != null;
-        $res = null;
+        $res = response()->json(null);
         if($checkAuth){
-            $res = $request->user();
+            $user = User::with('organizations','organization')->findOrFail($request->user()->id);
+            $res = UserController::get_user_data($user);
         }
-        return response()->json($res);
+        return $res;
     }
 }

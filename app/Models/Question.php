@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Question
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereCorrectAnswer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereQuestion($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Question whereTestId($value)
+ * @property-read \App\Models\Test $test
  */
 class Question extends Model
 {
@@ -36,4 +38,9 @@ class Question extends Model
     protected $casts = [
         'answers' => 'array',
     ];
+
+    public function test(): BelongsTo
+    {
+        return $this->belongsTo(Test::class);
+    }
 }

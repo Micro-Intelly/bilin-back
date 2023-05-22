@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Storage;
 
 /**
  * App\Models\Section
@@ -28,10 +29,27 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Section whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Section whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Section whereSeriesId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Episode[] $episodes
+ * @property-read int|null $episodes_count
+ * @property-read \App\Models\Serie $serie
  */
 class Section extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'series_id',
+    ];
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($section) {
+            $section->episodes()->delete();
+        });
+    }
 
     public function episodes(): HasMany
     {

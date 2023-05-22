@@ -5,11 +5,13 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Http\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Storage;
 
 /**
  * App\Models\User
@@ -51,6 +53,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereOrganizationId($value)
  * @property string $thumbnail
  * @method static \Illuminate\Database\Eloquent\Builder|User whereThumbnail($value)
+ * @property-read \App\Models\Organization|null $organization
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Result[] $results
+ * @property-read int|null $results_count
  */
 class User extends Authenticatable
 {
@@ -65,6 +70,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'thumbnail'
     ];
 
     /**
@@ -84,12 +90,63 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($user) {
+            Org_user::where('user_id',$user->id)->delete();
+            $user->results()->delete();
+        });
+
+        self::deleted(function($user) {
+            if($user->organization_id != null){
+                $orgCount = User::where('organization_id','=', $user->organization_id)->count();
+                if($orgCount < 1) {
+                    Org_user::where('organization_id',$user->organization_id)->delete();
+                    Serie::where('organization_id',$user->organization_id)->update([
+                        'access'=>'registered', 'organization_id'=>null
+                    ]);
+                    Test::where('organization_id',$user->organization_id)->update([
+                        'access'=>'registered', 'organization_id'=>null
+                    ]);
+                    $user->organization()->delete();
+                }
+            }
+            $imageCount = User::where('thumbnail','=', $user->thumbnail)->count();
+            $imagePath = substr($user->thumbnail, 8);
+            $imagePath = 'public/'.$imagePath;
+            if(Storage::disk('local')->exists($imagePath) && $imageCount < 2) {
+                Storage::disk('local')->delete($imagePath);
+            }
+        });
+    }
+
     public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class, 'org_users');
     }
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
+    }
     public function posts(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+    public function results(): HasMany
+    {
+        return $this->hasMany(Result::class);
+    }
+
+    public static function organization_ids(string $id): \Illuminate\Support\Collection
+    {
+        $user = User::where('id',$id)
+            ->with('organizations:id')
+            ->first();
+        $userOrgIds = $user->organizations->pluck('id');
+        if($user->organization_id != null){
+            $userOrgIds[] = $user->organization_id;
+        }
+        return $userOrgIds;
     }
 }

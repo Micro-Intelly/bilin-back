@@ -25,10 +25,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Result whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Result whereUserId($value)
  * @mixin \Eloquent
+ * @property string $id
+ * @property int $n_try
+ * @property-read \App\Models\User $author
+ * @method static \Illuminate\Database\Eloquent\Builder|Result whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Result whereNTry($value)
  */
 class Result extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'n_try',
+        'result',
+        'user_id',
+        'test_id',
+    ];
 
     public function author(): BelongsTo
     {

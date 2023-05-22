@@ -33,7 +33,7 @@ return new class extends Migration
         Schema::table('comments', function (Blueprint $table)
         {
             $table->foreign('in_reply_to_id')->references('id')->on('comments');
-            $table->foreign('root_comm_id')->references('id')->on('comments')->cascadeOnDelete();
+            $table->foreign('root_comm_id')->references('id')->on('comments');
         });
     }
 

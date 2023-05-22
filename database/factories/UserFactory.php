@@ -51,4 +51,16 @@ class UserFactory extends Factory
             'email' => $email,
         ]);
     }
+
+    /**
+     * Create comment with specific organization.
+     * @param Organization $organization
+     * @return UserFactory
+     */
+    public function withKnowOrg(Organization $organization): UserFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'organization_id' => $organization,
+        ]);
+    }
 }

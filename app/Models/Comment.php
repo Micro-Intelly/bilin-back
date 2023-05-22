@@ -35,10 +35,38 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Comment whereCommentableId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Comment whereCommentableType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Comment whereType($value)
+ * @property string|null $title
+ * @property string|null $description
+ * @property string|null $in_reply_to_id
+ * @property string|null $root_comm_id
+ * @property string|null $serie_id
+ * @property-read \App\Models\User $author
+ * @property-read \Illuminate\Database\Eloquent\Collection|Comment[] $comments
+ * @property-read int|null $comments_count
+ * @property-read Comment|null $in_reply_to
+ * @property-read Comment|null $root_comm
+ * @method static \Illuminate\Database\Eloquent\Builder|Comment whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comment whereInReplyToId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comment whereRootCommId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comment whereSerieId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Comment whereTitle($value)
  */
 class Comment extends Model
 {
     use HasFactory, UuidTrait;
+
+    protected $fillable = [
+        'body',
+        'title',
+        'description',
+        'author_id',
+        'in_reply_to_id',
+        'root_comm_id',
+        'type',
+        'serie_id',
+        'commentable_id',
+        'commentable_type',
+    ];
 
     public function author(): BelongsTo
     {
@@ -61,5 +89,14 @@ class Comment extends Model
     public function in_reply_to(): BelongsTo
     {
         return $this->belongsTo(Comment::class, 'in_reply_to_id');
+    }
+
+    protected static function boot () {
+        parent::boot();
+
+        self::deleting(function($comment) {
+            Comment::where('in_reply_to_id', $comment->id)->update(['in_reply_to_id' => null]);
+            $comment->comments()->delete();
+        });
     }
 }
