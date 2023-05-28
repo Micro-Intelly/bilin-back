@@ -21,7 +21,7 @@ class FileFactory extends Factory
         return [
             'name' => fake()->words(rand(2, 7), true),
             'description' => fake()->paragraph(),
-            'path' => '/app/files/dummy.pdf',
+            'path' => 'app/files/dummy.pdf',
             'series_id' => Serie::factory()
         ];
     }

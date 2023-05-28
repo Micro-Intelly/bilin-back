@@ -110,36 +110,5 @@ class UserSeeder extends Seeder
         $managerUser->assignRole($manager);
         $adminUser = User::factory()->withKnowEmail('admin@example.es')->create();
         $adminUser->assignRole($admin);
-
-        // Series, Section, Episode, Comment, File
-        $seriesList = collect();
-        for($i = 0; $i < 10; $i++){
-            $teacherSelected = $teacherUserList->random();
-            $seriesAuxFactory = Serie::factory()
-                ->withUser($teacherSelected)
-                ->withLanguage($languages->random());
-            $orgAux = $orgWithNull->random();
-            if($orgAux != null){
-                $seriesAuxFactory = $seriesAuxFactory->withOrg($orgAux);
-            }
-            /** @var Serie $seriesAux */
-            $seriesAux = $seriesAuxFactory->create();
-            $seriesAux->tags()->saveMany($tags->random(3));
-            File::factory()->count(3)->withSeries($seriesAux)->create();
-            Comment::factory()->count(2)->withUser($teacherSelected)->withCommentable($seriesAux)->isNote()->create();
-
-            $sectionsList = Section::factory()->count(3)->withSeries($seriesAux)->create();
-            $episodesList = collect();
-            foreach($sectionsList as $section){
-                $episodeAux = Episode::factory()->count(4)->withSection($section)->create();
-                $episodesList = $episodesList->concat($episodeAux);
-            }
-            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->isComment()->create();
-            $subComments = Comment::factory()->count(10)->withUser($studentUserList->random())->withRoot($comments->random())->isComment()->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withInReplyTo($subComments->random())->isComment()->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->isNote()->create();
-
-            $seriesList->add($seriesAux);
-        }
     }
 }

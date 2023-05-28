@@ -38,6 +38,7 @@ Route::get('/user/limits', [UserController::class, 'get_limits'])->name('user.ge
 Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
 
 Route::get('/stream/{episode}', [EpisodeController::class, 'stream'])->name('episode.stream');
+Route::get('/streamUrl/{episode}', [EpisodeController::class, 'stream_url'])->name('episode.stream.url');
 Route::get('/series', [SerieController::class, 'index'])->name('series.index');
 Route::get('/series/{serie}', [SerieController::class, 'show'])->name('series.show');
 

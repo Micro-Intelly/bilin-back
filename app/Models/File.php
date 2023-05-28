@@ -45,10 +45,12 @@ class File extends Model
         parent::boot();
 
         self::deleting(function($file) {
-            $fileCount = File::where('path','=', $file->path)->count();
-            $filePath = substr($file->path, 5);
-            if(Storage::disk('local')->exists($filePath) && $fileCount < 2) {
-                Storage::disk('local')->delete($filePath);
+            if($file->path != 'app/files/dummy.pdf'){
+                $fileCount = File::where('path','=', $file->path)->count();
+    //            $filePath = substr($file->path, 5);
+                if(Storage::disk('do-spaces')->exists($file->path) && $fileCount < 2) {
+                    Storage::disk('do-spaces')->delete($file->path);
+                }
             }
         });
     }

@@ -42,7 +42,7 @@ class FileController extends Controller
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
                 'series_id' => $serie->id,
-                'path' => '/app/'.$request->get('path')
+                'path' => $request->get('path')
             ];
             File::create($data);
             return response()->json(['status' => 200, 'message' => 'Created']);
@@ -57,9 +57,13 @@ class FileController extends Controller
      * @param  \App\Models\File $file
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function show(File $file): BinaryFileResponse
+    public function show(File $file): JsonResponse
     {
-        return response()->file(storage_path($file->path));
+        if(! Storage::disk('do-spaces')->exists($file->path)) {
+            abort(404);
+        }
+//        return response()->file(Storage::disk('do-spaces')->get($file->path));
+        return response()->json(['status'=>200, 'message'=>Storage::disk('do-spaces')->temporaryUrl($file->path, now()->addMinutes(10))]);
     }
 
     /**
@@ -135,21 +139,23 @@ class FileController extends Controller
         // Build the file path
         $path = 'media';
         if(str_starts_with($mime,'audio')){
-            $path = 'podcasts/';
+            $path = 'podcasts';
         } else if(str_starts_with($mime,'video')){
-            $path = 'videos/';
+            $path = 'videos';
         } else if(str_starts_with($mime,'application')){
-            $path = 'files/';
+            $path = 'files';
         }
 //        $filePath = "upload/{$mime}/{$dateFolder}/";
-        $filePath = $path;
-        $finalPath = storage_path("app/".$filePath);
+        $filePath = "app/".$path;
+        $finalPath = storage_path($filePath);
 
         // move the file name
+        $remotePath = Storage::disk('do-spaces')->put($filePath, $file,'private');
         $file->move($finalPath, $fileName);
+        Storage::disk('local')->delete('files/'.$fileName);
 
         return response()->json([
-            'path' => $filePath,
+            'path' => $remotePath,
             'name' => $fileName,
             'mime_type' => $mime
         ]);
@@ -188,21 +194,20 @@ class FileController extends Controller
         ]);
         try{
             $type = $request->get('type');
-            $path = $type.'/'.$request->get('name');
-            $dbPath = '/app/'.$path;
-            if(Storage::disk('local')->exists($path)){
+            $path = 'app/'.$type.'/'.$request->get('name');
+            if(Storage::disk('do-spaces')->exists($path)){
                 if($type == 'podcasts' || $type == 'videos'){
-                    $count = Episode::where('path', $dbPath)->count();
+                    $count = Episode::where('path', $path)->count();
                     if($count > 0){
                         return response()->json(['status' => 400, 'message' => 'There are some video or podcast related to this file, you can not delete id without deleting the episode']);
                     }
                 } else if($type == 'files') {
-                    $count = File::where('path', $dbPath)->count();
+                    $count = File::where('path', $path)->count();
                     if($count > 0){
                         return response()->json(['status' => 400, 'message' => 'There are some file record related to this file, you can not delete id without deleting the episode']);
                     }
                 }
-                Storage::disk('local')->delete($path);
+                Storage::disk('do-spaces')->delete($path);
                 return response()->json(['status' => 200, 'message' => 'Success']);
             } else {
                 return response()->json(['status' => 400, 'message' => 'File not exists']);

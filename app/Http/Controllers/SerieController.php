@@ -158,9 +158,9 @@ class SerieController extends Controller
                 $this->validate($request, [
                     'thumbnail' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:1024',
                 ]);
-                $image_path = $request->file('thumbnail')->store('image/series', 'public');
+                $image_path = $request->file('thumbnail')->store('public/image/series', 'do-spaces');
                 $serie->update([
-                    'image' => 'storage/' . $image_path,
+                    'image' => $image_path,
                 ]);
                 return response()->json(['status' => 200, 'message' => 'Updated']);
             } catch (Exception $exception) {

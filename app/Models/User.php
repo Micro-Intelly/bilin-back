@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -96,6 +97,10 @@ class User extends Authenticatable
         self::deleting(function($user) {
             Org_user::where('user_id',$user->id)->delete();
             $user->results()->delete();
+            $user->episodes()->delete();
+            $user->comments()->delete();
+            $user->series_comments()->delete();
+            $user->series()->delete();
         });
 
         self::deleted(function($user) {
@@ -112,11 +117,13 @@ class User extends Authenticatable
                     $user->organization()->delete();
                 }
             }
-            $imageCount = User::where('thumbnail','=', $user->thumbnail)->count();
-            $imagePath = substr($user->thumbnail, 8);
-            $imagePath = 'public/'.$imagePath;
-            if(Storage::disk('local')->exists($imagePath) && $imageCount < 2) {
-                Storage::disk('local')->delete($imagePath);
+            if( $user->thumbnail != 'public/image/user/account-thumbnail.png'){
+                $imageCount = User::where('thumbnail','=', $user->thumbnail)->count();
+    //            $imagePath = substr($user->thumbnail, 8);
+    //            $imagePath = 'public/'.$imagePath;
+                if(Storage::disk('do-spaces')->exists($user->thumbnail) && $imageCount < 2) {
+                    Storage::disk('do-spaces')->delete($user->thumbnail);
+                }
             }
         });
     }
@@ -132,6 +139,22 @@ class User extends Authenticatable
     public function posts(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+    public function episodes(): HasMany
+    {
+        return $this->hasMany(Episode::class);
+    }
+    public function series(): HasMany
+    {
+        return $this->hasMany(Serie::class, 'author_id');
+    }
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'author_id');
+    }
+    public function series_comments(): HasManyThrough
+    {
+        return $this->hasManyThrough(Comment::class, Serie::class,'author_id','serie_id');
     }
     public function results(): HasMany
     {

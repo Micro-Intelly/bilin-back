@@ -98,6 +98,10 @@ class Serie extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Comment::class, 'serie_id');
+    }
     public function episode_comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'serie_id');
@@ -156,14 +160,17 @@ class Serie extends Model
             $serie->sections()->delete();
             $serie->tests()->delete();
             $serie->comments()->delete();
+            $serie->notes()->delete();
             $serie->episode_comments()->delete();
             $serie->histories()->delete();
             $serie->files()->delete();
-            $imageCount = Serie::where('image','=', $serie->image)->count();
-            $imagePath = substr($serie->image, 8);
-            $imagePath = 'public/'.$imagePath;
-            if(Storage::disk('local')->exists($imagePath) && $imageCount < 2) {
-                Storage::disk('local')->delete($imagePath);
+            if($serie->image != 'public/image/application/defaultImage.png'){
+                $imageCount = Serie::where('image','=', $serie->image)->count();
+                $imagePath = substr($serie->image, 8);
+                $imagePath = 'public/'.$imagePath;
+                if(Storage::disk('do-spaces')->exists($imagePath) && $imageCount < 2) {
+                    Storage::disk('do-spaces')->delete($imagePath);
+                }
             }
         });
     }

@@ -44,6 +44,7 @@ class TestFactory extends Factory
             'series_id' => $series,
             'level' => $series->level,
             'access' => $series->access,
+            'organization_id' => $series->organization_id
         ]);
     }
     /**
