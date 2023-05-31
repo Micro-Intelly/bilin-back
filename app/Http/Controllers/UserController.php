@@ -26,8 +26,11 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        return response()->json(
-            User::with('organization')->orderBy('email')->get());
+        $users = User::with('organization')->orderBy('email')->get();
+        $resUser = $users->filter(function (User $value) {
+            return !str_contains($value->getRoleNames()->join(','),'Admin');
+        });
+        return response()->json($resUser->values()->toArray());
     }
 
     /**
@@ -213,16 +216,17 @@ class UserController extends Controller
     public function destroy(Request $request, User $user):JsonResponse
     {
         if($request->user() != null &&
-            ($request->user()->can('manage-user') ||
+            ($request->user()->can('delete-user') ||
             $request->user()->id === $user->id))
         {
             try {
                 $user->delete();
 
-                auth('api')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-
+                if($request->user()->id === $user->id){
+                    auth('api')->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                }
 
                 return response()->json(['status' => 200, 'message' => 'Success']);
             } catch (Exception $exception) {

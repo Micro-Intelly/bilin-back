@@ -47,7 +47,7 @@ class Section extends Model
         parent::boot();
 
         self::deleting(function($section) {
-            $section->episodes()->delete();
+            $section->episodes->each->delete();
         });
     }
 

@@ -97,10 +97,9 @@ class User extends Authenticatable
         self::deleting(function($user) {
             Org_user::where('user_id',$user->id)->delete();
             $user->results()->delete();
-            $user->episodes()->delete();
-            $user->comments()->delete();
-            $user->series_comments()->delete();
-            $user->series()->delete();
+            $user->histories()->delete();
+            $user->comments->each->delete();
+            $user->series->each->delete();
         });
 
         self::deleted(function($user) {
@@ -138,11 +137,19 @@ class User extends Authenticatable
     }
     public function posts(): HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(Post::class);
+    }
+    public function tests(): HasMany
+    {
+        return $this->hasMany(Test::class);
     }
     public function episodes(): HasMany
     {
         return $this->hasMany(Episode::class);
+    }
+    public function histories(): HasMany
+    {
+        return $this->hasMany(History::class);
     }
     public function series(): HasMany
     {

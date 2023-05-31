@@ -157,13 +157,12 @@ class Serie extends Model
 
         self::deleting(function($serie) {
             Taggable::where('taggable_id', $serie->id)->delete();
-            $serie->sections()->delete();
-            $serie->tests()->delete();
-            $serie->comments()->delete();
+            $serie->sections->each->delete();
+            $serie->tests->each->delete();
+            $serie->comments->each->delete();
             $serie->notes()->delete();
-            $serie->episode_comments()->delete();
             $serie->histories()->delete();
-            $serie->files()->delete();
+            $serie->files->each->delete();
             if($serie->image != 'public/image/application/defaultImage.png'){
                 $imageCount = Serie::where('image','=', $serie->image)->count();
                 $imagePath = substr($serie->image, 8);

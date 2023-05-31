@@ -80,7 +80,7 @@ class Episode extends Model
                 }
             }
             $episode->histories()->delete();
-            $episode->comments()->delete();
+            $episode->comments->each->delete();
         });
     }
 

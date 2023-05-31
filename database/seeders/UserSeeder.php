@@ -81,31 +81,19 @@ class UserSeeder extends Seeder
                 $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
             );
         });
-        $teacherUserList->each(function ($user) use ($organizations) {
-            $user->organizations()->attach(
-                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
-            );
-        });
         /** @var User $orgUser */
-        $orgUser = User::factory()->withKnowEmail('org@example.es')->withKnowOrg($organizations->random())->create();
+        $mainOrg = $organizations->random();
+        $orgUser = User::factory()->withKnowEmail('org@example.es')->withKnowOrg($mainOrg)->create();
         $orgUser->assignRole($organization);
-        $orgUser->organizations()->save($organizations->random());
+        $orgWithoutMain = $organizations->filter(function (Organization $value) use ($mainOrg) {
+            return $value->id != $mainOrg->id;
+        });
         $orgUserList = collect();
         for($i = 0; $i < 10; $i++){
             $orgUserAux = User::factory()->withKnowEmail('org'.$i.'@example.es')->withKnowOrg($organizations->random())->create();
             $orgUserAux->assignRole($organization);
             $orgUserList->add($orgUserAux);
         }
-        $orgUserList->each(function ($user) use ($organizations) {
-            $user->organizations()->attach(
-                $organizations->random()->pluck('id')->toArray()
-            );
-        });
-        $orgUserList->each(function ($user) use ($organizations) {
-            $user->organizations()->attach(
-                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
-            );
-        });
         $managerUser = User::factory()->withKnowEmail('manager@example.es')->create();
         $managerUser->assignRole($manager);
         $adminUser = User::factory()->withKnowEmail('admin@example.es')->create();
