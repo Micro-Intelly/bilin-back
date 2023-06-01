@@ -49,9 +49,10 @@ class CommentController extends Controller
         $this->validate($request, [
             'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
         ]);
-        $image_path = $request->file('image')->store('image/note', 'public');
 
-        return response()->json(['imageUrl' => request()->root() . '/storage/' . $image_path]);
+        $image_path = $request->file('image')->store('public/image/note', 'do-spaces');
+
+        return response()->json(['imageUrl' => 'https://bilin.fra1.cdn.digitaloceanspaces.com/' . $image_path]);
     }
 
     /**

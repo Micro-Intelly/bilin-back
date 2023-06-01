@@ -151,7 +151,7 @@ class Test extends Model
         self::deleting(function($test) {
             Taggable::where('taggable_id', $test->id)->delete();
             $test->results()->delete();
-            $test->comments()->delete();
+            $test->comments->each->delete();
             $test->histories()->delete();
             $test->questions()->delete();
         });

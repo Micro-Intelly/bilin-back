@@ -56,6 +56,18 @@ return [
             'throw' => false,
         ],
 
+        'do-spaces' => [
+            'driver' => 's3',
+            'key' => env('DO_SPACES_KEY'),
+            'secret' => env('DB_SPACES_SECRET'),
+            'region' => env('DB_SPACES_REGION'),
+            'bucket' => env('DB_SPACES_BUCKET'),
+            'url' => env('DB_SPACES_URL'),
+            'endpoint' => env('DB_SPACES_ENDPOINT'),
+            'bucket_endpoint' => true,
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*

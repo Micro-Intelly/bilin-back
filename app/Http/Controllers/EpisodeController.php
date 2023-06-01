@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use JetBrains\PhpStorm\NoReturn;
+use Storage;
 
 class EpisodeController extends Controller
 {
@@ -41,7 +42,7 @@ class EpisodeController extends Controller
                     'title' => $request->get('title'),
                     'description' => $request->get('description'),
                     'serie_id' => $serie->id,
-                    'path' => '/app/'.$request->get('path'),
+                    'path' => $request->get('path'),
                     'type' => $serie->type,
                     'user_id' => $request->user()->id,
                     'section_id' => $section->id
@@ -122,9 +123,19 @@ class EpisodeController extends Controller
      * @param  \App\Models\Episode  $episode
      * @return void
      */
-    #[NoReturn] #[NoReturn] public function stream(Episode $episode)
+    #[NoReturn] public function stream(Episode $episode)
     {
         $stream = new VideoStreamController(storage_path() . $episode->path);
         $stream->start();exit;
+    }
+    /**
+     * Return streaming media source.
+     *
+     * @param  \App\Models\Episode  $episode
+     * @return void
+     */
+    public function stream_url(Episode $episode):JsonResponse
+    {
+        return response()->json(['status'=>200, 'message'=>Storage::disk('do-spaces')->temporaryUrl($episode->path, now()->addMinutes(30))]);
     }
 }

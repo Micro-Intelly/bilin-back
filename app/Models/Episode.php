@@ -67,13 +67,20 @@ class Episode extends Model
         parent::boot();
 
         self::deleting(function($episode) {
-            $episodeCount = Episode::where('path','=', $episode->path)->count();
-            $episodePath = substr($episode->path, 5);
-            if(Storage::disk('local')->exists($episodePath) && $episodeCount < 2) {
-                Storage::disk('local')->delete($episodePath);
+            if($episode->path != 'app/videos/file_example_MP4_1920_18MG.mp4' &&
+                $episode->path != 'app/podcasts/Free_Test_Data_10MB_MP3.mp3' &&
+                $episode->path != 'app/videos/file_example_MP4_480_1_5MG.mp4' &&
+                $episode->path != 'app/videos/sample-20s.mp4' &&
+                $episode->path != 'app/videos/sample-30s.mp4' )
+            {
+                $episodeCount = Episode::where('path','=', $episode->path)->count();
+    //            $episodePath = substr($episode->path, 5);
+                if(Storage::disk('do-spaces')->exists($episode->path) && $episodeCount < 2) {
+                    Storage::disk('do-spaces')->delete($episode->path);
+                }
             }
             $episode->histories()->delete();
-            $episode->comments()->delete();
+            $episode->comments->each->delete();
         });
     }
 

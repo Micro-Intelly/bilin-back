@@ -81,7 +81,7 @@ class Post extends Model
 
         self::deleting(function($post) {
             Taggable::where('taggable_id', $post->id)->delete();
-            $post->comments()->delete();
+            $post->comments->each->delete();
             $post->histories()->delete();
         });
     }

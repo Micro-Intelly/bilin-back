@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
 use App\Models\Episode;
 use App\Models\Org_user;
@@ -16,7 +14,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Mews\Purifier\Facades\Purifier;
+use Storage;
 
 class UserController extends Controller
 {
@@ -28,8 +26,11 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        return response()->json(
-            User::with('organization')->orderBy('email')->get());
+        $users = User::with('organization')->orderBy('email')->get();
+        $resUser = $users->filter(function (User $value) {
+            return !str_contains($value->getRoleNames()->join(','),'Admin');
+        });
+        return response()->json($resUser->values()->toArray());
     }
 
     /**
@@ -188,11 +189,15 @@ class UserController extends Controller
                 $this->validate($request, [
                     'thumbnail' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:1024',
                 ]);
-                $image_path = $request->file('thumbnail')->store('image/user', 'public');
+                if($user->thumbnail != null && User::where('thumbnail', $user->thumbnail)->count() < 2){
+                    Storage::disk('do-spaces')->delete($user->thumbnail);
+                }
+                $image_path = $request->file('thumbnail')->store('public/image/user', 'do-spaces');
+
                 $user->update([
-                    'thumbnail' => 'storage/' . $image_path,
+                    'thumbnail' => $image_path,
                 ]);
-                return response()->json(['status' => 200, 'message' => 'Updated']);
+                return response()->json(['status' => 200, 'message' => $image_path]);
             } catch (Exception $exception) {
                 return response()->json(['status' => 400, 'message' => $exception->getMessage()]);
             }
@@ -211,15 +216,18 @@ class UserController extends Controller
     public function destroy(Request $request, User $user):JsonResponse
     {
         if($request->user() != null &&
-            ($request->user()->can('manage-user') ||
+            ($request->user()->can('delete-user') ||
             $request->user()->id === $user->id))
         {
             try {
                 $user->delete();
 
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+                if($request->user()->id === $user->id){
+                    auth('api')->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                }
+
                 return response()->json(['status' => 200, 'message' => 'Success']);
             } catch (Exception $exception) {
                 return response()->json(['status' => 400, 'message' => $exception->getMessage()]);

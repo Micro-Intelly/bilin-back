@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('image')->default('storage/image/application/defaultImage.png');
+            $table->string('image')->default('public/image/application/defaultImage.png');
             $table->enum('type', ['video', 'podcast']);
             $table->enum('access', ['public', 'registered','org'])->default('public');
             $table->enum('level', ['basic', 'intermediate','advanced'])->default('basic');

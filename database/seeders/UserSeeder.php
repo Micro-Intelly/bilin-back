@@ -81,65 +81,22 @@ class UserSeeder extends Seeder
                 $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
             );
         });
-        $teacherUserList->each(function ($user) use ($organizations) {
-            $user->organizations()->attach(
-                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
-            );
-        });
         /** @var User $orgUser */
-        $orgUser = User::factory()->withKnowEmail('org@example.es')->withKnowOrg($organizations->random())->create();
+        $mainOrg = $organizations->random();
+        $orgUser = User::factory()->withKnowEmail('org@example.es')->withKnowOrg($mainOrg)->create();
         $orgUser->assignRole($organization);
-        $orgUser->organizations()->save($organizations->random());
+        $orgWithoutMain = $organizations->filter(function (Organization $value) use ($mainOrg) {
+            return $value->id != $mainOrg->id;
+        });
         $orgUserList = collect();
         for($i = 0; $i < 10; $i++){
             $orgUserAux = User::factory()->withKnowEmail('org'.$i.'@example.es')->withKnowOrg($organizations->random())->create();
             $orgUserAux->assignRole($organization);
             $orgUserList->add($orgUserAux);
         }
-        $orgUserList->each(function ($user) use ($organizations) {
-            $user->organizations()->attach(
-                $organizations->random()->pluck('id')->toArray()
-            );
-        });
-        $orgUserList->each(function ($user) use ($organizations) {
-            $user->organizations()->attach(
-                $organizations->random(rand(1, $organizations->count()))->pluck('id')->toArray()
-            );
-        });
         $managerUser = User::factory()->withKnowEmail('manager@example.es')->create();
         $managerUser->assignRole($manager);
         $adminUser = User::factory()->withKnowEmail('admin@example.es')->create();
         $adminUser->assignRole($admin);
-
-        // Series, Section, Episode, Comment, File
-        $seriesList = collect();
-        for($i = 0; $i < 10; $i++){
-            $teacherSelected = $teacherUserList->random();
-            $seriesAuxFactory = Serie::factory()
-                ->withUser($teacherSelected)
-                ->withLanguage($languages->random());
-            $orgAux = $orgWithNull->random();
-            if($orgAux != null){
-                $seriesAuxFactory = $seriesAuxFactory->withOrg($orgAux);
-            }
-            /** @var Serie $seriesAux */
-            $seriesAux = $seriesAuxFactory->create();
-            $seriesAux->tags()->saveMany($tags->random(3));
-            File::factory()->count(3)->withSeries($seriesAux)->create();
-            Comment::factory()->count(2)->withUser($teacherSelected)->withCommentable($seriesAux)->isNote()->create();
-
-            $sectionsList = Section::factory()->count(3)->withSeries($seriesAux)->create();
-            $episodesList = collect();
-            foreach($sectionsList as $section){
-                $episodeAux = Episode::factory()->count(4)->withSection($section)->create();
-                $episodesList = $episodesList->concat($episodeAux);
-            }
-            $comments = Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->isComment()->create();
-            $subComments = Comment::factory()->count(10)->withUser($studentUserList->random())->withRoot($comments->random())->isComment()->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withInReplyTo($subComments->random())->isComment()->create();
-            Comment::factory()->count(10)->withUser($studentUserList->random())->withCommentable($episodesList->random())->isNote()->create();
-
-            $seriesList->add($seriesAux);
-        }
     }
 }
