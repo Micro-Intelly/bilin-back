@@ -15,6 +15,9 @@ class OrganizationSeeder extends Seeder
      */
     public function run()
     {
-        Organization::factory()->count(10)->create();
+//        Organization::factory()->count(10)->create();
+        Organization::factory()->withName('EduPlus')->create();
+        Organization::factory()->withName('Language Academy')->create();
+        Organization::factory()->withName('Learning Camp')->create();
     }
 }

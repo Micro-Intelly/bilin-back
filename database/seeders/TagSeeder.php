@@ -15,6 +15,15 @@ class TagSeeder extends Seeder
      */
     public function run()
     {
-        Tag::factory()->count(10)->create();
+        Tag::factory()->withName('Vocabulary')->create();
+        Tag::factory()->withName('Grammar')->create();
+        Tag::factory()->withName('Listening')->create();
+        Tag::factory()->withName('Writing')->create();
+        Tag::factory()->withName('Speaking')->create();
+        Tag::factory()->withName('Reading')->create();
+        Tag::factory()->withName('Business')->create();
+        Tag::factory()->withName('General')->create();
+        Tag::factory()->withName('Schools')->create();
+        Tag::factory()->withName('Tactic')->create();
     }
 }

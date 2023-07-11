@@ -22,4 +22,16 @@ class OrganizationFactory extends Factory
             'description' => fake()->paragraph(),
         ];
     }
+
+    /**
+     * Method to create organization with specific name
+     * @param string $name
+     * @return OrganizationFactory
+     */
+    public function withName(string $name): OrganizationFactory
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => $name,
+        ]);
+    }
 }
